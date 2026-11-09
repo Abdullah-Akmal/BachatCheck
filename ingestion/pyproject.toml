@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bachatcheck-ingestion"
+version = "0.1.0"
+description = "Daily data ingestion jobs for BachatCheck"
+requires-python = ">=3.11"
+dependencies = [
+    "bachatcheck",  # shared models/settings from ../backend (installed editable)
+    "httpx>=0.27",
+    "tenacity>=9",
+    "structlog>=24.1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11"]
+
+[project.scripts]
+bachatcheck-ingest = "ingestion.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["ingestion*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "N", "S", "SIM", "RUF"]
+ignore = ["S101"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["ingestion", "bachatcheck"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
