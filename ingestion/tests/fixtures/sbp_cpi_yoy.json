@@ -1,0 +1,54 @@
+{
+ "columns": [
+  "Dataset Name",
+  "Series Key",
+  "Series Name",
+  "Observation Date",
+  "Observation Value",
+  "Unit",
+  "Observation Status",
+  "Status Comments"
+ ],
+ "rows": [
+  [
+   "Inflation Snapshot (New Base: 2015-16)",
+   "TS_GP_PT_CPI_M.P00011516",
+   "National CPI; an Inflation Measure (Year-on-Year basis)",
+   "2026-10-31",
+   "9.6",
+   "Percent",
+   "Normal",
+   ""
+  ],
+  [
+   "Inflation Snapshot (New Base: 2015-16)",
+   "TS_GP_PT_CPI_M.P00011516",
+   "National CPI; an Inflation Measure (Year-on-Year basis)",
+   "2026-09-30",
+   "10.3",
+   "Percent",
+   "Normal",
+   ""
+  ],
+  [
+   "Inflation Snapshot (New Base: 2015-16)",
+   "TS_GP_PT_CPI_M.P00011516",
+   "National CPI; an Inflation Measure (Year-on-Year basis)",
+   "2026-08-31",
+   "11.1",
+   "Percent",
+   "Normal",
+   ""
+  ],
+  [
+   "Inflation Snapshot (New Base: 2015-16)",
+   "TS_GP_PT_CPI_M.P00011516",
+   "National CPI; an Inflation Measure (Year-on-Year basis)",
+   "2026-07-31",
+   "9.2",
+   "Percent",
+   "Normal",
+   ""
+  ]
+ ]
+}

@@ -1,0 +1,34 @@
+{
+ "columns": [
+  "Dataset Name",
+  "Series Key",
+  "Series Name",
+  "Observation Date",
+  "Observation Value",
+  "Unit",
+  "Observation Status",
+  "Status Comments"
+ ],
+ "rows": [
+  [
+   "Weighted Average Lending and Deposit Rates",
+   "TS_GP_BAM_WALDR_M.WALD01360000",
+   "Weighted Average rate of All banks on Fresh Deposits excl. 0 Markup",
+   "2026-09-30",
+   "",
+   "Percent",
+   "Missing value",
+   ""
+  ],
+  [
+   "Weighted Average Lending and Deposit Rates",
+   "TS_GP_BAM_WALDR_M.WALD01360000",
+   "Weighted Average rate of All banks on Fresh Deposits excl. 0 Markup",
+   "2026-08-31",
+   "",
+   "Percent",
+   "Missing value",
+   ""
+  ]
+ ]
+}

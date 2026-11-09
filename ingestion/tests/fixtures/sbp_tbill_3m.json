@@ -1,0 +1,44 @@
+{
+ "columns": [
+  "Dataset Name",
+  "Series Key",
+  "Series Name",
+  "Observation Date",
+  "Observation Value",
+  "Unit",
+  "Observation Status",
+  "Status Comments"
+ ],
+ "rows": [
+  [
+   "Structure of Interest Rate: T-Bills Auction Result",
+   "TS_GP_BAM_SIRTBIL_AH.TB0010",
+   "Treasury Bills' Cut-off Yield 3-Months",
+   "2026-10-14",
+   "12",
+   "Percent",
+   "Normal",
+   ""
+  ],
+  [
+   "Structure of Interest Rate: T-Bills Auction Result",
+   "TS_GP_BAM_SIRTBIL_AH.TB0010",
+   "Treasury Bills' Cut-off Yield 3-Months",
+   "2026-09-30",
+   "11.99",
+   "Percent",
+   "Normal",
+   ""
+  ],
+  [
+   "Structure of Interest Rate: T-Bills Auction Result",
+   "TS_GP_BAM_SIRTBIL_AH.TB0010",
+   "Treasury Bills' Cut-off Yield 3-Months",
+   "2026-09-02",
+   "11.6",
+   "Percent",
+   "Normal",
+   ""
+  ]
+ ]
+}
