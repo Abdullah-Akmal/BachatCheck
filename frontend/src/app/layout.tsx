@@ -1,10 +1,13 @@
 import type { Metadata, Viewport } from "next";
+import Link from "next/link";
+
+import { Nav } from "@/components/nav";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "BachatCheck — Where should my savings go?",
+  title: { default: "BachatCheck — Where should my savings go?", template: "%s · BachatCheck" },
   description:
-    "Compare Pakistani savings options by real return after inflation and tax.",
+    "Compare Pakistani savings options — bank savings, T-bills, mutual funds, KSE-100, USD and gold — by real return after inflation and tax.",
 };
 
 export const viewport: Viewport = {
@@ -12,21 +15,24 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
       <body className="flex min-h-dvh flex-col antialiased">
-        <header className="border-b border-black/10 px-4 py-3 dark:border-white/10">
-          <span className="text-lg font-semibold">BachatCheck</span>
+        <header className="border-b border-line bg-surface">
+          <div className="mx-auto flex w-full max-w-5xl flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <Link href="/" className="text-lg font-semibold tracking-tight">
+              Bachat<span className="text-brand">Check</span>
+            </Link>
+            <Nav />
+          </div>
         </header>
-        <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6">
-          {children}
-        </main>
-        <footer className="border-t border-black/10 px-4 py-4 text-center text-xs opacity-70 dark:border-white/10">
-          For education only. Not investment advice. Data may be delayed or
-          inaccurate.
+        <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6">{children}</main>
+        <footer className="border-t border-line bg-surface px-4 py-4 text-center text-xs text-ink-2">
+          For education only. Not investment advice. Data may be delayed or inaccurate.{" "}
+          <Link href="/methodology" className="underline underline-offset-2">
+            How we calculate
+          </Link>
         </footer>
       </body>
     </html>
