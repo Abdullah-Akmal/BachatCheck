@@ -1,0 +1,92 @@
+# BachatCheck tax assumptions — versioned config, loaded with:  python -m ingestion run tax_rules
+#
+# TODO(owner): every `rate` below is a PLACEHOLDER (null). Fill each one in from a verified,
+# current FBR source (Income Tax Ordinance 2001, Finance Act / FBR withholding-tax card), set
+# `source_url` to that document, and set `verified: true`. Until then the API treats the rule
+# as "unknown" and shows pre-tax returns only — it never guesses.
+#
+# Fields:
+#   asset_class     bank_savings | mutual_fund | tbill | stock | usd | gold
+#   tax_type        e.g. withholding_on_profit, dividend, capital_gains
+#   filer_status    filer | non_filer   (Pakistan taxes non-filers at higher rates)
+#   rate            fraction as a STRING, e.g. "0.15" for 15%  (quoted so it parses to Decimal)
+#   effective_from  first day the rate applies (Pakistan's tax year starts 1 July)
+#   effective_to    last day, or null if still current
+#   verified        true only after you've checked the rate against source_url
+
+rules:
+  - asset_class: bank_savings
+    tax_type: withholding_on_profit
+    filer_status: filer
+    rate: null            # TODO: verified FBR rate
+    effective_from: 2025-07-01   # TODO: confirm
+    source_url: null
+    verified: false
+    notes: Withholding tax on profit on debt (savings account profit).
+
+  - asset_class: bank_savings
+    tax_type: withholding_on_profit
+    filer_status: non_filer
+    rate: null
+    effective_from: 2025-07-01
+    source_url: null
+    verified: false
+
+  - asset_class: tbill
+    tax_type: withholding_on_profit
+    filer_status: filer
+    rate: null
+    effective_from: 2025-07-01
+    source_url: null
+    verified: false
+
+  - asset_class: mutual_fund
+    tax_type: dividend
+    filer_status: filer
+    rate: null
+    effective_from: 2025-07-01
+    source_url: null
+    verified: false
+    notes: May differ by fund type (e.g. debt-heavy vs equity funds) — check the current schedule.
+
+  - asset_class: mutual_fund
+    tax_type: capital_gains
+    filer_status: filer
+    rate: null
+    effective_from: 2025-07-01
+    source_url: null
+    verified: false
+
+  - asset_class: stock
+    tax_type: capital_gains
+    filer_status: filer
+    rate: null
+    effective_from: 2025-07-01
+    source_url: null
+    verified: false
+    notes: Pakistan's CGT on listed securities has depended on holding period and acquisition date.
+
+  - asset_class: stock
+    tax_type: dividend
+    filer_status: filer
+    rate: null
+    effective_from: 2025-07-01
+    source_url: null
+    verified: false
+
+  - asset_class: gold
+    tax_type: capital_gains
+    filer_status: filer
+    rate: null
+    effective_from: 2025-07-01
+    source_url: null
+    verified: false
+
+  - asset_class: usd
+    tax_type: capital_gains
+    filer_status: filer
+    rate: null
+    effective_from: 2025-07-01
+    source_url: null
+    verified: false
+    notes: Gains from holding foreign currency — confirm treatment.
