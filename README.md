@@ -65,6 +65,46 @@ docker compose run --rm ingestion run psx --symbols KSE100,OGDC
 
 Exit codes: `0` success, `1` failed, `2` usage error, `3` partial.
 
+## API
+
+Versioned under `/api/v1`, with OpenAPI docs at `/docs`. Heavy GETs are cached in-process for
+`CACHE_TTL_SECONDS` (default 300, `X-Cache: HIT|MISS`), and every client IP gets
+`RATE_LIMIT_PER_MINUTE` requests (default 60; `/health` is exempt). CORS allows only
+`CORS_ORIGINS`. Decimals are returned as **strings**: money rounded to 2 dp, returns as
+fractions rounded to 6 dp (`"0.126825"` = 12.68%).
+
+| Endpoint | What |
+|---|---|
+| `GET /compare?amount=&years=&shariah=&filer_status=&savings_rate=` | Nominal, real and post-tax growth per asset class, plus a CPI line |
+| `GET /funds`, `/funds/categories`, `/funds/{symbol}` | Funds explorer (sort/filter), NAV history |
+| `GET /stocks/search?q=`, `/stocks/{symbol}?period=` | Price history and return vs KSE-100 |
+| `GET /macro`, `/macro/{code}` | CPI, policy rate, T-bills, KIBOR, deposit rates |
+| `GET /freshness` | Last successful run per source and latest data date per dataset |
+| `GET /tax-rules`, `/config` | Tax assumptions and data modes (for the methodology page) |
+
+## How returns are calculated
+
+All math lives in `backend/bachatcheck/returns/` and uses `Decimal` (34 significant digits).
+
+- **Absolute return** `end / start − 1`. **CAGR** `(1 + total)^(365 / days) − 1`.
+- **Real return** (exact Fisher): `(1 + nominal) / (1 + inflation) − 1`.
+- **Inflation** comes from a price index chained from SBP's month-on-month national CPI. It runs
+  from the CPI month at/before the start date to the one at/before the end date.
+- **Bank savings:** profit credited monthly at the rate in force (SBP's average deposit rate,
+  or the user's own rate), then reinvested.
+- **T-bills (3/6/12 months):** bought at the latest auction cut-off yield, rolled over at each
+  maturity, actual/365. The last partial period accrues pro rata.
+- **KSE-100 / KMI-30, USD, gold:** buy at the start price or rate, value at the end. Index
+  levels don't include dividends.
+- **Mutual funds:** the category median of MUFAP's trailing 1/2/3-year return, so horizons are
+  1–3 years only. Annualized categories compound `(1 + r)^years`; absolute ones are used as is.
+  The chart line in between is illustrative.
+- **Tax:** applied only when `tax_rules` holds a **verified** rate. Accrual assets withhold tax
+  on each profit credit; price assets pay tax on the gain at the end, and losses aren't
+  refunded. Otherwise the API returns `tax.status = "unverified"` and no post-tax figures.
+- **Shariah-compliant mode** excludes interest-bearing savings and T-bills, swaps the KSE-100
+  for the KMI-30, and uses Shariah-compliant fund categories.
+
 ## Data sources and licensing notes
 
 | Data | Source | Notes |
@@ -91,4 +131,4 @@ values. Licensing contact: marketdatarequest@psx.com.pk.
 **Deposit rates:** SBP's weighted-average deposit rates include zero-profit current accounts,
 so they understate what a savings account pays. The bank-savings benchmark is configurable.
 
-_Status: Milestone 2 (data model + ingestion)._
+_Status: Milestone 3 (returns engine + API)._
