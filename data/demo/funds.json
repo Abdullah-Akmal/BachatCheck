@@ -1,0 +1,32 @@
+{
+  "_note": "SYNTHETIC DEMO DATA. Fund names and numbers are made up for illustration and do not describe any real fund. Served when FUNDS_DATA_MODE=demo because MUFAP's terms don't allow public display of its data without written approval.",
+  "as_of_date": "2026-11-06",
+  "funds": [
+    {"name": "Demo Cash Fund A", "category": "Money Market", "return_basis": "annualized", "is_shariah": false, "rating": "AA+(f)", "nav": "10.5021",
+     "returns": {"ret_ytd": "10.9", "ret_mtd": "10.8", "ret_30d": "10.7", "ret_90d": "10.8", "ret_365d": "10.9", "ret_2y": "13.4", "ret_3y": "16.2"}},
+    {"name": "Demo Cash Fund B", "category": "Money Market", "return_basis": "annualized", "is_shariah": false, "rating": "AAA(f)", "nav": "104.8810",
+     "returns": {"ret_ytd": "10.6", "ret_mtd": "10.9", "ret_30d": "10.5", "ret_90d": "10.6", "ret_365d": "10.7", "ret_2y": "13.1", "ret_3y": "15.9"}},
+    {"name": "Demo Liquidity Plus Fund", "category": "Money Market", "return_basis": "annualized", "is_shariah": false, "rating": "AA(f)", "nav": "52.3104",
+     "returns": {"ret_ytd": "11.2", "ret_mtd": "11.4", "ret_30d": "11.1", "ret_90d": "11.0", "ret_365d": "11.1", "ret_2y": "13.7", "ret_3y": "16.5"}},
+    {"name": "Demo Income Fund A", "category": "Income", "return_basis": "annualized", "is_shariah": false, "rating": "A+(f)", "nav": "112.4407",
+     "returns": {"ret_ytd": "11.4", "ret_mtd": "10.9", "ret_30d": "11.0", "ret_90d": "11.3", "ret_365d": "11.6", "ret_2y": "14.2", "ret_3y": "16.8"}},
+    {"name": "Demo Sovereign Income Fund", "category": "Income", "return_basis": "annualized", "is_shariah": false, "rating": "AA(f)", "nav": "105.9930",
+     "returns": {"ret_ytd": "10.8", "ret_mtd": "10.6", "ret_30d": "10.7", "ret_90d": "10.9", "ret_365d": "11.0", "ret_2y": "13.9", "ret_3y": "16.1"}},
+    {"name": "Demo Equity Fund A", "category": "Equity", "return_basis": "absolute", "is_shariah": false, "rating": null, "nav": "88.1250",
+     "returns": {"ret_ytd": "18.5", "ret_mtd": "-1.2", "ret_30d": "-0.8", "ret_90d": "6.4", "ret_365d": "31.0", "ret_2y": "95.0", "ret_3y": "140.0"}},
+    {"name": "Demo Blue Chip Fund", "category": "Equity", "return_basis": "absolute", "is_shariah": false, "rating": null, "nav": "142.7700",
+     "returns": {"ret_ytd": "16.2", "ret_mtd": "-0.9", "ret_30d": "-0.4", "ret_90d": "5.8", "ret_365d": "27.5", "ret_2y": "88.0", "ret_3y": "128.0"}},
+    {"name": "Demo Islamic Cash Fund", "category": "Shariah Compliant Money Market", "return_basis": "annualized", "is_shariah": true, "rating": "AA+(f)", "nav": "101.2205",
+     "returns": {"ret_ytd": "10.4", "ret_mtd": "10.3", "ret_30d": "10.2", "ret_90d": "10.4", "ret_365d": "10.5", "ret_2y": "12.9", "ret_3y": "15.6"}},
+    {"name": "Demo Islamic Daily Dividend Fund", "category": "Shariah Compliant Money Market", "return_basis": "annualized", "is_shariah": true, "rating": "AA(f)", "nav": "100.0000",
+     "returns": {"ret_ytd": "10.1", "ret_mtd": "10.2", "ret_30d": "10.0", "ret_90d": "10.1", "ret_365d": "10.2", "ret_2y": "12.6", "ret_3y": "15.2"}},
+    {"name": "Demo Islamic Income Fund", "category": "Shariah Compliant Income", "return_basis": "annualized", "is_shariah": true, "rating": "A+(f)", "nav": "108.6650",
+     "returns": {"ret_ytd": "11.0", "ret_mtd": "10.7", "ret_30d": "10.8", "ret_90d": "10.9", "ret_365d": "11.2", "ret_2y": "13.6", "ret_3y": "16.0"}},
+    {"name": "Demo Islamic Equity Fund", "category": "Shariah Compliant Equity", "return_basis": "absolute", "is_shariah": true, "rating": null, "nav": "76.4321",
+     "returns": {"ret_ytd": "17.1", "ret_mtd": "-1.5", "ret_30d": "-1.1", "ret_90d": "5.9", "ret_365d": "29.0", "ret_2y": "90.0", "ret_3y": "132.0"}},
+    {"name": "Demo Islamic Stock Fund", "category": "Shariah Compliant Equity", "return_basis": "absolute", "is_shariah": true, "rating": null, "nav": "61.0890",
+     "returns": {"ret_ytd": "15.4", "ret_mtd": "-1.0", "ret_30d": "-0.6", "ret_90d": "5.1", "ret_365d": "25.8", "ret_2y": "84.0", "ret_3y": "121.0"}},
+    {"name": "Demo Balanced Allocation Fund", "category": "Asset Allocation", "return_basis": "absolute", "is_shariah": false, "rating": null, "nav": "95.3300",
+     "returns": {"ret_ytd": "13.0", "ret_mtd": "-0.3", "ret_30d": "0.2", "ret_90d": "4.2", "ret_365d": "20.1", "ret_2y": "52.0", "ret_3y": "78.0"}}
+  ]
+}

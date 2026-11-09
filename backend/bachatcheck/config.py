@@ -36,9 +36,34 @@ class Settings(BaseSettings):
     sbp_easydata_api_key: SecretStr | None = None
     # psxdata symbols fetched daily. KSE100 is stored as an index, the rest as stocks.
     psx_symbols: str = "KSE100,KMI30,OGDC,PPL,HBL,MCB,UBL,MEBL,LUCK,HUBC,FFC,SYS"
-    mufap_inbox_dir: Path = REPO_ROOT / "data" / "mufap_inbox"
-    gold_csv_path: Path = REPO_ROOT / "data" / "gold" / "gold_pkr_per_tola_24k.csv"
-    tax_rules_path: Path = REPO_ROOT / "data" / "tax_rules.yaml"
+    # Root of the versioned data files (tax rules, gold CSV, demo data, MUFAP inbox).
+    data_dir: Path = REPO_ROOT / "data"
+
+    # --- Returns engine / API ---
+    # Macro series used as the default bank-savings rate (users can override per request).
+    savings_benchmark_series: str = "DEPOSIT_RATE_FRESH"
+    # Requests per minute per client IP for /api/v1 (health is exempt).
+    rate_limit_per_minute: int = 60
+    # Seconds that heavy GET responses are cached in-process.
+    cache_ttl_seconds: int = 300
+    # Use the first X-Forwarded-For hop as the client IP (only behind a trusted proxy).
+    trust_forwarded_for: bool = False
+
+    @property
+    def mufap_inbox_dir(self) -> Path:
+        return self.data_dir / "mufap_inbox"
+
+    @property
+    def gold_csv_path(self) -> Path:
+        return self.data_dir / "gold" / "gold_pkr_per_tola_24k.csv"
+
+    @property
+    def tax_rules_path(self) -> Path:
+        return self.data_dir / "tax_rules.yaml"
+
+    @property
+    def demo_funds_path(self) -> Path:
+        return self.data_dir / "demo" / "funds.json"
 
     @property
     def cors_origin_list(self) -> list[str]:
