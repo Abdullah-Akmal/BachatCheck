@@ -30,7 +30,12 @@ docker compose up
 - API docs: http://localhost:8000/docs
 - Health: http://localhost:8000/api/v1/health
 
-Without Docker (Python 3.11+, Node 20+):
+Without Docker (Python 3.11+, Node 20+, macOS/Linux/WSL):
+
+> **Windows note:** Windows 11 *Smart App Control* blocks the unsigned compiled extensions that
+> SQLAlchemy, psycopg and pydantic ship in their wheels, so the Python side won't import natively.
+> Run it in Docker or WSL instead. The frontend works natively.
+
 
 ```bash
 python -m venv .venv
