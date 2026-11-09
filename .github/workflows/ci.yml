@@ -45,7 +45,7 @@ jobs:
       - name: Mypy
         run: |
           (cd backend && mypy bachatcheck tests)
-          (cd ingestion && mypy ingestion tests)
+          (cd ingestion && mypy ingestion tests scripts)
       - name: Migrations apply cleanly
         working-directory: backend
         run: alembic upgrade head
