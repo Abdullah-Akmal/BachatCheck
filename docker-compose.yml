@@ -35,5 +35,21 @@ services:
     ports: ["3000:3000"]
     depends_on: [backend]
 
+  # On-demand jobs:  docker compose run --rm ingestion run sbp
+  ingestion:
+    profiles: ["tools"]
+    build:
+      context: .
+      dockerfile: ingestion/Dockerfile
+    env_file: [{ path: .env, required: false }]
+    environment:
+      DATABASE_URL: postgresql+psycopg://bachatcheck:bachatcheck@db:5432/bachatcheck
+    volumes:
+      - ./backend:/repo/backend
+      - ./ingestion:/repo/ingestion
+      - ./data:/repo/data
+    depends_on:
+      db: { condition: service_healthy }
+
 volumes:
   pgdata:

@@ -12,10 +12,13 @@ dependencies = [
     "httpx>=0.27",
     "tenacity>=9",
     "structlog>=24.1",
+    "openpyxl>=3.1",
+    "pyyaml>=6",
+    "psxdata==1.2.0",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11"]
+dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11", "types-PyYAML", "types-openpyxl"]
 
 [project.scripts]
 bachatcheck-ingest = "ingestion.cli:main"
@@ -37,6 +40,12 @@ known-first-party = ["ingestion", "bachatcheck"]
 [tool.mypy]
 python_version = "3.11"
 strict = true
+mypy_path = "../backend"
+
+[[tool.mypy.overrides]]
+module = ["psxdata", "psxdata.*"]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = ["db: needs a reachable Postgres (DATABASE_URL) with migrations applied"]
