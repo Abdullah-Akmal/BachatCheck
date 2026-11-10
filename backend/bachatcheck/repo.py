@@ -341,3 +341,12 @@ def active_tax_rate(
         and (r.effective_to is None or r.effective_to >= on)
     ]
     return max(candidates, key=lambda r: r.effective_from, default=None)
+
+
+SYNTHETIC_SOURCE = "demo_seed"
+
+
+def has_synthetic_data(s: Session) -> bool:
+    """True if `ingestion seed` rows are present (macro series are always part of the seed)."""
+    stmt = select(MacroObservation.id).where(MacroObservation.source == SYNTHETIC_SOURCE).limit(1)
+    return s.execute(stmt).first() is not None

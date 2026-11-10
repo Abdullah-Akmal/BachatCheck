@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 
 import { Nav } from "@/components/nav";
+import { SyntheticBanner } from "@/components/synthetic-banner";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <Nav />
           </div>
         </header>
+        <SyntheticBanner />
         <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6">{children}</main>
         <footer className="border-t border-line bg-surface px-4 py-4 text-center text-xs text-ink-2">
           For education only. Not investment advice. Data may be delayed or inaccurate.{" "}

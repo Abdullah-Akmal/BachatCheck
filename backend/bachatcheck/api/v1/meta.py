@@ -62,6 +62,8 @@ class ConfigOut(BaseModel):
     funds_data_mode: str
     stocks_data_mode: str
     savings_benchmark_series: str
+    # True when the database holds synthetic rows from `ingestion seed`; the UI shows a banner.
+    synthetic_data: bool
 
 
 @router.get("/macro", response_model=list[SeriesOut])
@@ -99,9 +101,13 @@ def tax_rules(s: Annotated[Session, Depends(get_session)]) -> list[TaxRuleOut]:
 
 
 @router.get("/config", response_model=ConfigOut)
-def config(settings: Annotated[Settings, Depends(get_settings)]) -> ConfigOut:
+def config(
+    settings: Annotated[Settings, Depends(get_settings)],
+    s: Annotated[Session, Depends(get_session)],
+) -> ConfigOut:
     return ConfigOut(
         funds_data_mode=settings.funds_data_mode,
         stocks_data_mode=settings.stocks_data_mode,
         savings_benchmark_series=settings.savings_benchmark_series,
+        synthetic_data=repo.has_synthetic_data(s),
     )

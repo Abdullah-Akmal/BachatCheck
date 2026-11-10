@@ -248,4 +248,5 @@ export type AppConfig = {
   funds_data_mode: "real" | "demo";
   stocks_data_mode: "real" | "demo";
   savings_benchmark_series: string;
+  synthetic_data: boolean;
 };

@@ -133,4 +133,6 @@ def test_macro_freshness_tax_and_config(client: TestClient) -> None:
 
     rules = client.get("/api/v1/tax-rules").json()
     assert rules[0]["rate"] == "0.150000" and rules[0]["verified"] is True
-    assert client.get("/api/v1/config").json()["funds_data_mode"] == "real"
+    config = client.get("/api/v1/config").json()
+    assert config["funds_data_mode"] == "real"
+    assert config["synthetic_data"] is False  # seed data uses source "test", not "demo_seed"
