@@ -131,4 +131,23 @@ values. Licensing contact: marketdatarequest@psx.com.pk.
 **Deposit rates:** SBP's weighted-average deposit rates include zero-profit current accounts,
 so they understate what a savings account pays. The bank-savings benchmark is configurable.
 
-_Status: Milestone 3 (returns engine + API)._
+## Frontend
+
+Next.js App Router pages, mobile-first, server-rendered against the API:
+
+- **Compare** (`/`): amount, horizon, Shariah and tax-status inputs live in the URL, so results
+  are shareable. Shows an inflation headline, a real/nominal growth chart (fixed colour per
+  asset, at most 4 lines, hover tooltips) and per-asset cards with real and after-tax returns,
+  plus the reason any asset is missing.
+- **Funds** (`/funds`, `/funds/[symbol]`): filter, search, sortable table, NAV history.
+- **Stocks** (`/stocks`, `/stocks/[symbol]`): price history vs the KSE-100, rebased to 100.
+- **Methodology** (`/methodology`): formulas, tax assumptions, per-source freshness, limitations.
+
+```bash
+cd frontend
+npm test          # Vitest + Testing Library
+npm run lint
+npx tsc --noEmit
+```
+
+_Status: Milestone 4 (frontend)._
