@@ -5,6 +5,9 @@ import { ApiError, apiGet, type AppConfig, type Freshness, type MacroSeries, typ
 import { formatDate, formatFractionPct } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Methodology" };
+// Render per request (API responses are still cached by fetch). Prerendering at build time
+// would bake in whatever the API returned then — or an error page if it wasn't reachable.
+export const dynamic = "force-dynamic";
 
 const SOURCES = [
   {

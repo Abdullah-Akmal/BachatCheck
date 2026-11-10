@@ -19,7 +19,28 @@ export function PriceChart({
   ariaLabel: string;
 }) {
   return (
-    <div className="h-64 sm:h-72" role="img" aria-label={ariaLabel}>
+    <div>
+      {series.length > 1 && (
+        <ul className="mb-2 flex flex-wrap gap-4 text-xs text-ink-2" aria-label="Legend">
+          {series.map((s) => (
+            <li key={s.key} className="flex items-center gap-1.5">
+              <svg width="16" height="4" aria-hidden>
+                <line
+                  x1="0"
+                  y1="2"
+                  x2="16"
+                  y2="2"
+                  stroke={s.color}
+                  strokeWidth="2"
+                  strokeDasharray={s.dashed ? "4 3" : undefined}
+                />
+              </svg>
+              {s.label}
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className="h-64 sm:h-72" role="img" aria-label={ariaLabel}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={rows} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
           <CartesianGrid stroke="var(--grid)" vertical={false} />
@@ -73,6 +94,7 @@ export function PriceChart({
           ))}
         </LineChart>
       </ResponsiveContainer>
+      </div>
     </div>
   );
 }
