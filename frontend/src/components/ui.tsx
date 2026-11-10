@@ -30,8 +30,12 @@ export function Notice({ title, children }: { title?: string; children: React.Re
 export function ErrorState({ message }: { message: string }) {
   return (
     <div role="alert" className="rounded-lg border border-line bg-surface px-4 py-6 text-center">
-      <p className="font-medium">Something went wrong</p>
+      <p className="font-medium">Couldn&apos;t load the data</p>
       <p className="mt-1 text-sm text-ink-2">{message}</p>
+      {/* A plain link re-requests the page server-side, which is what a retry needs. */}
+      <a href="" className="mt-3 inline-block rounded-lg bg-brand px-4 py-2 text-sm font-medium text-brand-ink">
+        Try again
+      </a>
     </div>
   );
 }

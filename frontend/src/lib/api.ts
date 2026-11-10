@@ -25,6 +25,9 @@ export class ApiError extends Error {
 
 type Query = Record<string, string | number | boolean | undefined | null>;
 
+export const WAKING_UP =
+  "The data service is waking up — it sleeps when nobody has visited for a while. Please refresh in a minute.";
+
 export async function apiGet<T>(path: string, query: Query = {}, revalidate = 300): Promise<T> {
   const params = new URLSearchParams();
   for (const [k, v] of Object.entries(query)) {
@@ -35,10 +38,16 @@ export async function apiGet<T>(path: string, query: Query = {}, revalidate = 30
   try {
     res = await fetch(`${apiBaseUrl()}/api/v1${path}${qs ? `?${qs}` : ""}`, {
       next: { revalidate },
-      signal: AbortSignal.timeout(15000),
+      // Generous: the free-tier API host sleeps when idle and takes ~1 minute to wake.
+      signal: AbortSignal.timeout(50_000),
     });
   } catch {
-    throw new ApiError(0, "Couldn't reach the BachatCheck API. Please try again shortly.");
+    throw new ApiError(0, WAKING_UP);
+  }
+  if (res.status === 502 || res.status === 503 || res.status === 504) {
+    // Gateway errors from the host while the API is starting, not from the API itself.
+    const isApiError = res.headers.get("content-type")?.includes("application/json");
+    if (!isApiError) throw new ApiError(res.status, WAKING_UP);
   }
   if (!res.ok) {
     let detail = res.statusText;
