@@ -4,7 +4,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field, SecretStr
+from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -48,6 +48,16 @@ class Settings(BaseSettings):
     cache_ttl_seconds: int = 300
     # Use the first X-Forwarded-For hop as the client IP (only behind a trusted proxy).
     trust_forwarded_for: bool = False
+
+    @field_validator("database_url")
+    @classmethod
+    def _use_psycopg_driver(cls, url: str) -> str:
+        """Hosted Postgres (Neon, Render) hands out postgres:// or postgresql:// URLs; SQLAlchemy
+        would pick psycopg2 for those, which we don't install. Point them at psycopg 3."""
+        for prefix in ("postgres://", "postgresql://"):
+            if url.startswith(prefix):
+                return "postgresql+psycopg://" + url.removeprefix(prefix)
+        return url
 
     @property
     def mufap_inbox_dir(self) -> Path:

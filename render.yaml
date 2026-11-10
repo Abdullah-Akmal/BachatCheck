@@ -1,0 +1,32 @@
+# Render Blueprint for the BachatCheck API. In Render: New -> Blueprint -> pick this repo.
+# Secrets marked `sync: false` are entered in the Render dashboard, never committed.
+services:
+  - type: web
+    name: bachatcheck-api
+    runtime: docker
+    plan: free
+    region: singapore # closest Render region to Pakistan
+    dockerfilePath: ./infra/api.Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL # Neon *pooled* connection string
+        sync: false
+      - key: CORS_ORIGINS # your Vercel URL, e.g. https://bachatcheck.vercel.app
+        sync: false
+      # MUFAP's terms forbid public display without written approval -> demo fund data.
+      - key: FUNDS_DATA_MODE
+        value: demo
+      - key: STOCKS_DATA_MODE
+        value: real
+      - key: TRUST_FORWARDED_FOR # Render's proxy sets X-Forwarded-For
+        value: "true"
+      - key: RATE_LIMIT_PER_MINUTE
+        value: "60"
+      - key: CACHE_TTL_SECONDS
+        value: "600"
+      - key: LOG_JSON
+        value: "true"
