@@ -1,0 +1,95 @@
+name: Ingest data
+
+# Daily data refresh against the production database (Neon).
+# Secrets (Settings -> Secrets and variables -> Actions): DATABASE_URL, SBP_EASYDATA_API_KEY.
+# MUFAP isn't here on purpose: its terms allow personal use only, so production shows demo funds.
+on:
+  schedule:
+    - cron: "30 17 * * *" # 22:30 PKT daily: SBP, FX, gold, tax rules (after MUFAP's ~22:30 update)
+    - cron: "0 11 * * 1-5" # 16:00 PKT weekdays: PSX, after the 15:30 close
+  workflow_dispatch:
+    inputs:
+      source:
+        description: Which source to run
+        type: choice
+        options: [daily, psx, sbp, frankfurter, gold, tax_rules]
+        default: daily
+      backfill_from:
+        description: "Optional backfill start date (YYYY-MM-DD) for sbp, frankfurter or psx"
+        required: false
+
+concurrency:
+  group: ingest
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      SBP_EASYDATA_API_KEY: ${{ secrets.SBP_EASYDATA_API_KEY }}
+      LOG_JSON: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            backend/pyproject.toml
+            ingestion/pyproject.toml
+      - name: Check secrets
+        run: |
+          if [ -z "$DATABASE_URL" ]; then echo "::error::DATABASE_URL secret is not set"; exit 1; fi
+      - name: Install
+        run: pip install -e backend -e ingestion
+      - name: Apply migrations
+        working-directory: backend
+        run: alembic upgrade head
+
+      - name: Pick sources
+        id: pick
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            src="${{ inputs.source }}"
+          elif [ "${{ github.event.schedule }}" = "0 11 * * 1-5" ]; then
+            src="psx"
+          else
+            src="daily"
+          fi
+          if [ "$src" = "daily" ]; then src="tax_rules gold frankfurter sbp"; fi
+          echo "sources=$src" >> "$GITHUB_OUTPUT"
+
+      - name: Run ingestion
+        working-directory: ingestion
+        env:
+          SOURCES: ${{ steps.pick.outputs.sources }}
+          BACKFILL_FROM: ${{ inputs.backfill_from }}
+        run: |
+          failed=0
+          for s in $SOURCES; do
+            case "$s" in
+              sbp|frankfurter|psx) backfillable=1 ;;
+              *) backfillable=0 ;;
+            esac
+            if [ -n "$BACKFILL_FROM" ] && [ $backfillable -eq 1 ]; then
+              cmd="python -m ingestion backfill $s --from $BACKFILL_FROM"
+            else
+              cmd="python -m ingestion run $s"
+            fi
+            echo "::group::$cmd"
+            set +e; $cmd; code=$?; set -e
+            echo "::endgroup::"
+            case $code in
+              0) echo "- \`$s\`: success" >> "$GITHUB_STEP_SUMMARY" ;;
+              3) echo "::warning::$s finished partially (some series/symbols failed)"
+                 echo "- \`$s\`: partial" >> "$GITHUB_STEP_SUMMARY" ;;
+              *) echo "::error::$s failed (exit $code)"
+                 echo "- \`$s\`: **failed**" >> "$GITHUB_STEP_SUMMARY"; failed=1 ;;
+            esac
+          done
+          exit $failed
