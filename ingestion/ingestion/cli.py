@@ -4,6 +4,7 @@
     python -m ingestion run <source> [--date YYYY-MM-DD]
         [--file PATH] [--symbols A,B] [--series X,Y]
     python -m ingestion backfill <source> --from YYYY-MM-DD [--to YYYY-MM-DD]
+    python -m ingestion seed [--clear] [--force]     # synthetic demo data for a fresh clone
 
 Exit codes: 0 success, 1 failed, 2 usage error, 3 partial (some rows/series failed).
 """
@@ -50,7 +51,48 @@ def build_parser() -> argparse.ArgumentParser:
     bf.add_argument("--from", dest="start", type=date.fromisoformat, required=True)
     bf.add_argument("--to", dest="end", type=date.fromisoformat, default=None)
     _add_options(bf)
+
+    seed = sub.add_parser("seed", help="Load SYNTHETIC demo data (no live sources needed)")
+    seed.add_argument("--clear", action="store_true", help="Remove the demo data instead")
+    seed.add_argument("--force", action="store_true", help="Seed even if real data exists")
     return parser
+
+
+def _seed(clear: bool, force: bool) -> int:
+    from sqlalchemy import delete, exists, select
+
+    from bachatcheck.db import _session_factory
+    from bachatcheck.models import FxRate, Instrument, MacroObservation, PriceBar
+    from ingestion.providers.demo_seed import SOURCE, DemoSeedProvider
+    from ingestion.runner import run_job
+
+    factory = _session_factory()
+    with factory() as s:
+        if clear:
+            s.execute(delete(MacroObservation).where(MacroObservation.source == SOURCE))
+            s.execute(delete(PriceBar).where(PriceBar.source == SOURCE))
+            s.execute(delete(FxRate).where(FxRate.provider == SOURCE))
+            s.execute(
+                delete(Instrument).where(Instrument.source == SOURCE, Instrument.kind == "stock")
+            )
+            s.commit()
+            log.info("seed.cleared")
+            return 0
+        real = s.execute(
+            select(
+                exists().where(MacroObservation.source != SOURCE)
+                | exists().where(PriceBar.source != SOURCE)
+                | exists().where(FxRate.provider != SOURCE)
+            )
+        ).scalar_one()
+    if real and not force:
+        # Mixing synthetic and real rows would blend them in charts, so refuse by default.
+        log.error(
+            "seed.refused", reason="database already holds real data; use --force to seed anyway"
+        )
+        return 2
+    result = run_job(DemoSeedProvider(), factory, FetchContext(as_of=today_pkt()))
+    return EXIT[result.status]
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -62,6 +104,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         for name in sorted(REGISTRY):
             print(name)
         return 0
+    if args.command == "seed":
+        return _seed(args.clear, args.force)
 
     if args.source not in REGISTRY:
         log.error("ingestion.unknown_source", source=args.source, available=sorted(REGISTRY))
