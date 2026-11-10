@@ -10,9 +10,10 @@ from __future__ import annotations
 import hashlib
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 import structlog
+from sqlalchemy import update
 from sqlalchemy.orm import Session
 
 from bachatcheck.config import get_settings
@@ -72,12 +73,31 @@ def _validated(records: list[Record], provider: str) -> tuple[list[Record], int]
     return good, skipped
 
 
+ABANDONED_AFTER = timedelta(hours=2)
+
+
+def _close_abandoned(session: Session, source: str) -> None:
+    """Mark runs left 'running' by a killed process as failed, so freshness stays truthful."""
+    cutoff = datetime.now(UTC) - ABANDONED_AFTER
+    session.execute(
+        update(JobRun)
+        .where(JobRun.source == source, JobRun.status == "running", JobRun.started_at < cutoff)
+        .values(
+            status="failed",
+            finished_at=datetime.now(UTC),
+            error="abandoned: the process exited before the run finished",
+        )
+    )
+    session.commit()
+
+
 def run_job(
     provider: Provider, session_factory: Callable[[], Session], ctx: FetchContext
 ) -> JobResult:
     params = {"as_of": ctx.as_of.isoformat(), "start": ctx.start.isoformat() if ctx.start else None}
     params.update(ctx.options)
     with session_factory() as session:
+        _close_abandoned(session, provider.name)
         run = JobRun(source=provider.name, status="running", params=params)
         session.add(run)
         session.commit()

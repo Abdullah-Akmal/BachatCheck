@@ -127,3 +127,45 @@ def test_partial_when_some_series_fail(
     )
     assert result.status == "partial"
     assert result.rows_upserted == 4
+
+
+def test_large_batches_are_chunked(session_factory: Factory) -> None:
+    # More rows than fit in one statement's 65,535 bind parameters (2,500 rows x 8 columns).
+    header = b"date,open,high,low,close,volume,is_anomaly\n"
+    start = date(2000, 1, 1)
+    lines = [
+        f"{date.fromordinal(start.toordinal() + i)},100,110,95,105,1000,False\n".encode()
+        for i in range(9000)
+    ]
+    csv_bytes = header + b"".join(lines)
+
+    class BigPsx(PsxProvider):
+        def fetch(self, ctx: FetchContext) -> Sequence[RawPayload]:
+            return [RawPayload("psx", "psxdata://stocks/BIGSYM?start=a&end=b", csv_bytes, "csv")]
+
+    result = run_job(BigPsx(), session_factory, FetchContext(as_of=AS_OF))
+    assert (result.status, result.rows_upserted) == ("success", 9000)
+
+
+def test_abandoned_runs_are_closed(
+    session_factory: Factory, fixture_bytes: Callable[[str], bytes]
+) -> None:
+    from datetime import UTC, datetime, timedelta
+
+    with session_factory() as s:
+        stale = JobRun(
+            source="sbp",
+            status="running",
+            params={},
+            started_at=datetime.now(UTC) - timedelta(hours=5),
+        )
+        s.add(stale)
+        s.commit()
+        stale_id = stale.id
+
+    run_job(
+        FixtureSbp(fixture_bytes("sbp_cpi_yoy.json")), session_factory, FetchContext(as_of=AS_OF)
+    )
+    with session_factory() as s:
+        closed = s.get_one(JobRun, stale_id)
+        assert closed.status == "failed" and "abandoned" in (closed.error or "")

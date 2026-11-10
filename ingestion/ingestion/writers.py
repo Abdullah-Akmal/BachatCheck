@@ -93,22 +93,27 @@ def _series_id(session: Session, s: MacroSeriesDef, cache: _Cache) -> int:
     return sid
 
 
+# Postgres allows at most 65,535 bind parameters per statement; 1,000 rows x ~15 columns is safe.
+CHUNK_ROWS = 1000
+
+
 def _upsert(session: Session, model: Any, rows: list[dict[str, Any]], constraint: str) -> int:
     if not rows:
         return 0
-    stmt = insert(model).values(rows)
     table = model.__table__
     unique = next(c for c in table.constraints if c.name == constraint)
     key_cols = {col.name for col in unique.columns}
-    update = {
-        c.name: stmt.excluded[c.name]
-        for c in table.columns
-        if c.name not in key_cols and c.name != "id" and c.name in rows[0]
-    }
-    for stamp in ("ingested_at", "updated_at"):
-        if stamp in table.columns:
-            update[stamp] = func.now()
-    session.execute(stmt.on_conflict_do_update(constraint=constraint, set_=update))
+    for start in range(0, len(rows), CHUNK_ROWS):
+        stmt = insert(model).values(rows[start : start + CHUNK_ROWS])
+        update = {
+            c.name: stmt.excluded[c.name]
+            for c in table.columns
+            if c.name not in key_cols and c.name != "id" and c.name in rows[0]
+        }
+        for stamp in ("ingested_at", "updated_at"):
+            if stamp in table.columns:
+                update[stamp] = func.now()
+        session.execute(stmt.on_conflict_do_update(constraint=constraint, set_=update))
     return len(rows)
 
 
