@@ -150,4 +150,9 @@ npm run lint
 npx tsc --noEmit
 ```
 
-_Status: Milestone 4 (frontend)._
+## Deployment
+
+Neon (Postgres) + Render (API, Docker) + Vercel (frontend) + GitHub Actions (daily ingestion),
+all on free tiers. Step-by-step: [DEPLOY.md](DEPLOY.md).
+
+_Status: Milestone 5 (deploy config)._
