@@ -78,7 +78,7 @@ Both Vercel projects are pinned to Singapore (`sin1`), next to the Neon database
 
 ## 4. Daily data: GitHub Actions
 
-1. In the GitHub repo, create an environment named `DATABASE_URL` (**Settings → Environments**) and add these **environment secrets** (repository secrets with the same names also work):
+1. In the GitHub repo, create an environment named `BachatCheck` (**Settings → Environments**) and add these **environment secrets** (repository secrets with the same names also work):
    - `DATABASE_URL_UNPOOLED` (or `DATABASE_URL`): the Neon **unpooled** string (the workflow runs migrations too).
    - `SBP_EASYDATA_API_KEY`: your EasyData key. **It expires every 90 days**: regenerate it at
      easydata.sbp.org.pk (My Data Basket → My Account) and update this secret.
