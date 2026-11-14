@@ -4,18 +4,25 @@ from unittest.mock import MagicMock
 from fastapi.testclient import TestClient
 from sqlalchemy.exc import OperationalError
 
-from bachatcheck.db import get_session
+from bachatcheck.db import optional_session
 from bachatcheck.main import create_app
 
 
-def _client_with_session(session: MagicMock) -> TestClient:
+def _client_with_session(session: MagicMock | None) -> TestClient:
     app = create_app()
 
-    def override() -> Iterator[MagicMock]:
+    def override() -> Iterator[MagicMock | None]:
         yield session
 
-    app.dependency_overrides[get_session] = override
+    app.dependency_overrides[optional_session] = override
     return TestClient(app)
+
+
+def test_health_degraded_not_500_when_db_misconfigured() -> None:
+    # e.g. DATABASE_URL missing or unparseable: optional_session yields None.
+    resp = _client_with_session(None).get("/api/v1/health")
+    assert resp.status_code == 200
+    assert resp.json()["database"] == "unavailable"
 
 
 def test_health_ok_when_db_reachable() -> None:

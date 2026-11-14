@@ -8,7 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from bachatcheck import __version__
-from bachatcheck.db import get_session
+from bachatcheck.db import optional_session
 
 router = APIRouter(tags=["health"])
 log = structlog.get_logger()
@@ -21,17 +21,18 @@ class HealthResponse(BaseModel):
 
 
 @router.get("/health", response_model=HealthResponse)
-def health(session: Annotated[Session, Depends(get_session)]) -> HealthResponse:
+def health(session: Annotated[Session | None, Depends(optional_session)]) -> HealthResponse:
     """Liveness + database reachability.
 
-    Always returns 200 so the process stays 'up' while the database is down.
+    Always returns 200 so the process stays 'up' while the database is down or misconfigured.
     """
-    try:
-        session.execute(text("SELECT 1"))
-        db_status: Literal["ok", "unavailable"] = "ok"
-    except SQLAlchemyError as exc:
-        log.warning("health.db_unavailable", error=str(exc.__class__.__name__))
-        db_status = "unavailable"
+    db_status: Literal["ok", "unavailable"] = "unavailable"
+    if session is not None:
+        try:
+            session.execute(text("SELECT 1"))
+            db_status = "ok"
+        except SQLAlchemyError as exc:
+            log.warning("health.db_unavailable", error=str(exc.__class__.__name__))
     return HealthResponse(
         status="ok" if db_status == "ok" else "degraded",
         version=__version__,

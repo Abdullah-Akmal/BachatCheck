@@ -52,8 +52,18 @@ class Settings(BaseSettings):
     @field_validator("database_url")
     @classmethod
     def _use_psycopg_driver(cls, url: str) -> str:
-        """Hosted Postgres (Neon, Render) hands out postgres:// or postgresql:// URLs; SQLAlchemy
-        would pick psycopg2 for those, which we don't install. Point them at psycopg 3."""
+        """Normalise a pasted connection string, then point it at the psycopg 3 driver.
+
+        Dashboards make it easy to paste `"postgresql://..."` with its quotes from a .env file, or
+        the whole `DATABASE_URL=...` line, so both are tolerated. Hosted Postgres (Neon) hands out
+        postgres:// or postgresql:// URLs; SQLAlchemy would pick psycopg2 for those, which we
+        don't install.
+        """
+        url = url.strip()
+        if url.upper().startswith("DATABASE_URL="):
+            url = url.split("=", 1)[1].strip()
+        if len(url) >= 2 and url[0] == url[-1] and url[0] in "\"'":
+            url = url[1:-1].strip()
         for prefix in ("postgres://", "postgresql://"):
             if url.startswith(prefix):
                 return "postgresql+psycopg://" + url.removeprefix(prefix)
