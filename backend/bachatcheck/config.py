@@ -73,7 +73,8 @@ class Settings(BaseSettings):
 
     @property
     def demo_funds_path(self) -> Path:
-        return self.data_dir / "demo" / "funds.json"
+        # Ships inside the package, so the API needs no files outside backend/ (e.g. on Vercel).
+        return Path(__file__).resolve().parent / "demo_data" / "funds.json"
 
     @property
     def cors_origin_list(self) -> list[str]:

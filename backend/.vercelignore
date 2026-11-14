@@ -1,0 +1,12 @@
+# Not needed by the running API (migrations run from GitHub Actions).
+tests/
+alembic/
+alembic.ini
+Dockerfile
+.dockerignore
+.venv/
+**/__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/

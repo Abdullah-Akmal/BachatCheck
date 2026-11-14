@@ -29,6 +29,9 @@ dev = [
 [tool.setuptools.packages.find]
 include = ["bachatcheck*"]
 
+[tool.setuptools.package-data]
+bachatcheck = ["demo_data/*.json"]
+
 [tool.ruff]
 line-length = 100
 target-version = "py311"
