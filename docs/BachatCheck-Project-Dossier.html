@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>BachatCheck — Project Dossier</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm; }
+  :root {
+    --ink: #16181d; --ink-2: #4a4f59; --muted: #7a808c; --line: #e3e5ea; --soft: #f5f6f8;
+    --brand: #0b6e4f; --brand-soft: #e7f3ee; --warn: #8a5a00; --warn-soft: #fff4d6;
+    --bad: #b42323; --good: #0a7a3a;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif; color: var(--ink);
+         font-size: 9.7pt; line-height: 1.45; margin: 0; }
+  h1, h2, h3, h4 { line-height: 1.25; margin: 0; }
+  h2 { font-size: 17pt; color: var(--brand); margin: 0 0 4mm; padding-bottom: 2mm; border-bottom: 2px solid var(--brand-soft); }
+  h3 { font-size: 12pt; margin: 6mm 0 2mm; }
+  h4 { font-size: 10.5pt; margin: 4mm 0 1.5mm; color: var(--ink-2); }
+  p { margin: 0 0 2.5mm; }
+  ul, ol { margin: 0 0 3mm; padding-left: 5.5mm; }
+  li { margin: 0 0 1mm; }
+  code, .mono { font-family: "DejaVu Sans Mono", Consolas, monospace; font-size: 7.6pt;
+         background: var(--soft); padding: 0.2mm 1mm; border-radius: 1mm; }
+  pre { font-family: "DejaVu Sans Mono", Consolas, monospace; font-size: 7.3pt; background: var(--soft); border: 1px solid var(--line);
+        border-radius: 2mm; padding: 3mm; white-space: pre-wrap; margin: 0 0 3mm; }
+  table { width: 100%; border-collapse: collapse; margin: 1mm 0 4mm; font-size: 8.7pt; break-inside: avoid; }
+  th, td { text-align: left; vertical-align: top; padding: 1.6mm 2mm; border-bottom: 1px solid var(--line); }
+  th { background: var(--soft); font-weight: 600; color: var(--ink-2); }
+  tr { page-break-inside: avoid; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .section { page-break-before: always; }
+  .flowsec { margin-top: 7mm; }
+  h2, h3, h4 { break-after: avoid; }
+  pre, .flow, .arch, .grid2, .grid3 { break-inside: avoid; }
+  .avoid { page-break-inside: avoid; }
+  .lead { font-size: 11pt; color: var(--ink-2); }
+  .muted { color: var(--muted); }
+  .small { font-size: 8.6pt; }
+  .pos { color: var(--good); font-weight: 600; } .neg { color: var(--bad); font-weight: 600; }
+  .callout { border-left: 3px solid var(--brand); background: var(--brand-soft); padding: 2.5mm 3.5mm; border-radius: 0 2mm 2mm 0; margin: 2mm 0 4mm; }
+  .warn { border-left-color: var(--warn); background: var(--warn-soft); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3mm; }
+  .card { border: 1px solid var(--line); border-radius: 2.5mm; padding: 3mm 3.5mm; page-break-inside: avoid; }
+  .card h4 { margin-top: 0; color: var(--ink); }
+  .stat { font-size: 18pt; font-weight: 700; color: var(--brand); line-height: 1.1; }
+  .tag { display: inline-block; font-size: 7.6pt; padding: 0.4mm 1.8mm; border-radius: 6mm; background: var(--soft); color: var(--ink-2); border: 1px solid var(--line); margin: 0 1mm 1mm 0; }
+  figure { margin: 2mm 0 4mm; page-break-inside: avoid; }
+  figure img { width: 100%; border: 1px solid var(--line); border-radius: 2mm; display: block; }
+  figcaption { font-size: 8.4pt; color: var(--muted); margin-top: 1.2mm; }
+  /* Cover */
+  .cover { height: 255mm; display: flex; flex-direction: column; justify-content: space-between; }
+  .cover .brand { font-size: 34pt; font-weight: 800; letter-spacing: -0.5pt; }
+  .cover .brand span { color: var(--brand); }
+  .cover .subtitle { font-size: 15pt; color: var(--ink-2); margin-top: 2mm; }
+  .cover .kicker { text-transform: uppercase; letter-spacing: 2pt; font-size: 9pt; color: var(--brand); font-weight: 700; }
+  .cover-meta td { border: none; padding: 1mm 4mm 1mm 0; font-size: 10pt; }
+  .toc { columns: 2; column-gap: 8mm; font-size: 10pt; }
+  .toc div { break-inside: avoid; padding: 0.8mm 0; border-bottom: 1px dotted var(--line); }
+  /* Architecture diagram */
+  .arch { display: grid; grid-template-columns: 1.05fr 0.15fr 1fr 0.15fr 1fr; align-items: center; gap: 0; margin: 3mm 0 4mm; }
+  .arch .col { display: flex; flex-direction: column; gap: 2mm; }
+  .arch .box { border: 1.4px solid var(--ink-2); border-radius: 2mm; padding: 2mm 2.5mm; background: #fff; font-size: 8.4pt; line-height: 1.35; }
+  .arch .box b { display: block; font-size: 9pt; }
+  .arch .box.src { border-color: #6b7280; background: var(--soft); }
+  .arch .box.job { border-color: var(--warn); background: var(--warn-soft); }
+  .arch .box.db { border-color: #1f5fbf; background: #eaf1fc; }
+  .arch .box.app { border-color: var(--brand); background: var(--brand-soft); }
+  .arch .arrow { text-align: center; font-size: 16pt; color: var(--muted); }
+  .flow { display: flex; gap: 1.5mm; align-items: stretch; margin: 2mm 0 4mm; }
+  .flow .step { flex: 1; border: 1px solid var(--line); border-radius: 2mm; padding: 2mm; font-size: 8.3pt; background: #fff; }
+  .flow .step b { display: block; color: var(--brand); font-size: 8.8pt; margin-bottom: 0.5mm; }
+  .flow .sep { align-self: center; color: var(--muted); font-size: 12pt; }
+  .qa { page-break-inside: avoid; margin: 0 0 3.5mm; }
+  .qa .q { font-weight: 700; margin-bottom: 0.8mm; }
+  .qa .q::before { content: "Q. "; color: var(--brand); }
+  .qa .a { color: var(--ink-2); }
+  .qa .a::before { content: "A. "; color: var(--ink); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================ COVER -->
+<div class="cover">
+  <div>
+    <div class="kicker">Project dossier · portfolio &amp; interview guide</div>
+    <div style="height: 30mm"></div>
+    <div class="brand">Bachat<span>Check</span></div>
+    <div class="subtitle">Where should my savings go? A full-stack fintech app that compares Pakistani savings options by their
+      <b>real return after inflation and tax</b>.</div>
+    <div style="height: 10mm"></div>
+    <table class="cover-meta">
+      <tr><td class="muted">Live site</td><td><b>https://bachatcheck-akteam321.vercel.app</b></td></tr>
+      <tr><td class="muted">Public API</td><td>https://bachatcheck-api-akteam321.vercel.app <span class="muted">(docs at /docs)</span></td></tr>
+      <tr><td class="muted">Source code</td><td>https://github.com/Abdullah-Akmal/BachatCheck</td></tr>
+      <tr><td class="muted">Author</td><td>Abdullah Akmal</td></tr>
+      <tr><td class="muted">Date</td><td>November 2026</td></tr>
+    </table>
+  </div>
+  <div>
+    <div class="grid3">
+      <div class="card"><div class="stat">6</div><div class="small muted">data sources, behind one provider interface</div></div>
+      <div class="card"><div class="stat">137</div><div class="small muted">automated tests (57 API · 53 ingestion · 27 UI)</div></div>
+      <div class="card"><div class="stat">10 yrs</div><div class="small muted">of history: CPI, rates, FX and PSX since 2015–16</div></div>
+    </div>
+    <p class="small muted" style="margin-top:4mm">For education only. Not investment advice. Data may be delayed or inaccurate.</p>
+  </div>
+</div>
+
+<!-- ============================================================ CONTENTS -->
+<div class="section">
+  <h2>Contents</h2>
+  <div class="toc">
+    <div>1. Executive summary</div>
+    <div>2. The problem</div>
+    <div>3. What the app does</div>
+    <div>4. Data: sources, coverage and licensing</div>
+    <div>5. System architecture</div>
+    <div>6. The ingestion pipeline</div>
+    <div>7. Database design</div>
+    <div>8. The returns engine (the finance)</div>
+    <div>9. The API</div>
+    <div>10. The frontend</div>
+    <div>11. Tech stack and why each piece</div>
+    <div>12. Engineering quality: testing, CI, security</div>
+    <div>13. Deployment and operations</div>
+    <div>14. Challenges and how they were solved</div>
+    <div>15. Known limitations and future work</div>
+    <div>16. Portfolio material: pitch and résumé lines</div>
+    <div>17. Interview Q&amp;A</div>
+    <div>18. Glossary</div>
+  </div>
+
+  <h2 style="margin-top:10mm">1. Executive summary</h2>
+  <p class="lead">BachatCheck answers one question a Pakistani saver actually has: <i>"If I had put my money here, would it
+  have beaten inflation?"</i></p>
+  <p>You enter an amount and a time horizon (1–10 years). BachatCheck shows how that money would have grown in a bank savings
+  account, Treasury bills, mutual funds, the KSE-100 stock index, US dollars and gold, and then shows what is left after
+  <b>inflation</b> (and, once tax rates are verified, after <b>tax</b>). The headline turns this into plain language:
+  <i>"Rs 100,000 in Nov 2023 needs Rs 125,086 today to buy the same things."</i></p>
+  <p>Behind the page is a production-style system:</p>
+  <ul>
+    <li><b>Ingestion:</b> scheduled jobs pull official and market data from the State Bank of Pakistan, an exchange-rate API and the
+      Pakistan Stock Exchange. They store each raw response before parsing, validate every row, and write idempotently to Postgres.</li>
+    <li><b>Returns engine:</b> a tested Python module does all the money math in exact decimal arithmetic.</li>
+    <li><b>API:</b> a versioned FastAPI service with caching, rate limiting, CORS and OpenAPI docs.</li>
+    <li><b>Frontend:</b> a mobile-first Next.js site that renders on the server and shows "data as of" everywhere.</li>
+    <li><b>Hosting:</b> runs on free tiers with no card required: Vercel (two projects), Neon Postgres and GitHub Actions.</li>
+  </ul>
+  <div class="callout">What makes it more than a demo: data licensing was researched and respected, missing data is reported
+  and never faked, tax is applied only from verified rules, and every source can fail without taking the site down.</div>
+</div>
+
+<!-- ============================================================ PROBLEM -->
+<div class="section">
+  <h2>2. The problem</h2>
+  <p>In the years this app covers, Pakistani savers faced double-digit inflation, a policy rate that swung between 5.75% and 22%,
+  and a rupee that lost over 60% of its value against the dollar in ten years. In that environment, the numbers people usually compare
+  mislead them:</p>
+  <ul>
+    <li><b>"My savings account pays 10%"</b> means little if prices rise 12% a year. In real terms that money is shrinking.</li>
+    <li><b>Returns are quoted inconsistently.</b> Money-market funds quote <i>annualized</i> returns, equity funds quote
+      <i>absolute</i> returns, and T-bills quote a <i>yield</i>. Side by side, these are not comparable.</li>
+    <li><b>The data is scattered.</b> Inflation and interest rates are at the State Bank (SBP), fund returns are at MUFAP (the
+      mutual funds association), and share prices are at the Pakistan Stock Exchange (PSX). Each has its own format and update schedule.</li>
+    <li><b>Tax changes the answer.</b> Withholding tax on profit, capital-gains tax, and filer vs non-filer rates all differ by asset.</li>
+  </ul>
+  <h3>Who it is for</h3>
+  <p>An ordinary saver on a phone: someone deciding between leaving money in the bank, buying T-bills, putting it in a mutual fund,
+  buying shares, or keeping dollars or gold. Most users will be on mobile, so the UI is designed mobile-first.</p>
+  <h3>The one number that matters</h3>
+  <p>The <b>real return</b> is the return after inflation. BachatCheck computes it exactly (Fisher equation), shows whether each option
+  beat inflation, and turns it into rupees: <i>"you would need Rs X today to buy what Rs Y bought then."</i></p>
+  <h3>What it deliberately is not</h3>
+  <ul>
+    <li>Not investment advice, and not a forecast. It looks backward at what actually happened.</li>
+    <li>Not a trading or brokerage app. No accounts, no personal data, no money movement.</li>
+  </ul>
+
+  <h2 style="margin-top:8mm">3. What the app does</h2>
+  <div class="grid2">
+    <div class="card"><h4>Compare (home page)</h4>
+      <ul class="small">
+        <li>Inputs: amount (PKR), horizon (1/2/3/5/10 years), Shariah-compliant only, filer/non-filer, optional "my bank's rate".</li>
+        <li>Headline: what the amount needs to be today to keep pace with prices, and how many options beat inflation.</li>
+        <li>Growth chart: real or nominal value over time, up to 4 options at once, plus an inflation line.</li>
+        <li>A card per option: end value, total and per-year return, real return, and after-tax figures when a rule is verified.</li>
+        <li>A "Not included" list that explains why any option is missing (e.g. no data for that period).</li>
+      </ul></div>
+    <div class="card"><h4>Mutual funds explorer</h4>
+      <ul class="small">
+        <li>Search, filter by category and Shariah status, sort by any return window.</li>
+        <li>Fund detail page: NAV, trailing returns (1 day to 3 years), NAV history chart.</li>
+        <li>The public site shows clearly labelled <b>demo</b> funds (licensing, see §4).</li>
+      </ul>
+      <h4>Stock lookup</h4>
+      <ul class="small">
+        <li>Search a PSX ticker; price chart and return vs the KSE-100, both rebased to 100.</li>
+        <li>Warns when price history is shorter than the chosen period.</li>
+      </ul>
+      <h4>Methodology</h4>
+      <ul class="small"><li>Formulas, tax assumptions, per-source "last updated" dates, limitations and disclaimer.</li></ul></div>
+  </div>
+  <p class="small muted">The URL holds every input, so results can be shared as a link. Every page shows the date its data is as of.</p>
+</div>
+
+<!-- ============================================================ SCREENSHOTS -->
+<div class="section">
+  <h3 style="margin-top:0">Screens</h3>
+  <div class="grid2" style="grid-template-columns: 1.55fr 1fr; align-items:start">
+    <figure><img src="screenshots/compare-desktop.png" style="max-height:200mm; object-fit:cover; object-position:top">
+      <figcaption>Compare page (desktop): headline, growth chart and per-option results, best real return first.</figcaption></figure>
+    <div>
+      <figure><img src="screenshots/compare-mobile.png" style="max-height:120mm; object-fit:cover; object-position:top">
+        <figcaption>The same page on a phone, in dark mode.</figcaption></figure>
+      <figure><img src="screenshots/stock-lookup.png">
+        <figcaption>Stock lookup: a share vs the KSE-100, rebased to 100.</figcaption></figure>
+    </div>
+  </div>
+  <p class="small muted">Screenshots were taken on the synthetic demo dataset used for local development (the yellow banner says so),
+  so no licensed market data appears in published images.</p>
+</div>
+
+<!-- ============================================================ DATA -->
+<div class="section">
+  <h2>4. Data: sources, coverage and licensing</h2>
+  <p>Every source was researched before any code was written against it: the API format, authentication, rate limits,
+  update cadence and terms of use.</p>
+  <table>
+    <tr><th style="width:20%">Data</th><th style="width:22%">Source</th><th>How it is accessed</th><th style="width:22%">Licensing / notes</th></tr>
+    <tr><td>CPI inflation, policy rate, T-bill yields, KIBOR, deposit rates</td><td><b>SBP EasyData API</b> (State Bank of Pakistan)</td>
+      <td>REST API: <code>/api/v1/series/{key}/data</code> with an API key as a query parameter. JSON rows. Series keys found through the
+        dataset-metadata API and verified one by one.</td>
+      <td>Free key that <b>expires every 90 days</b>; 2,000 calls/day, 250/hour. Public reuse allowed with attribution.</td></tr>
+    <tr><td>USD/PKR exchange rate</td><td><b>Frankfurter v2</b>, SBP provider</td>
+      <td><code>/v2/rates?base=USD&amp;quotes=PKR&amp;providers=SBP</code>. No key. SBP's daily average interbank rate.</td>
+      <td>Published monthly, so the latest weeks lag. v1 of the API no longer exists (returns 404).</td></tr>
+    <tr><td>KSE-100, KMI-30, PSX stocks</td><td><b>psxdata</b> (MIT-licensed Python library)</td>
+      <td>Daily OHLCV (open, high, low, close, volume). The library returns floats, so they are converted to Decimal at the boundary.</td>
+      <td>PSX's terms restrict automated retrieval and public display. The owner chose to use it, kept polite (one run a day, short watchlist), with a switch to turn it off.</td></tr>
+    <tr><td>Mutual funds (NAV + trailing returns)</td><td><b>MUFAP</b> Performance Summary</td>
+      <td>Excel export, downloaded by hand and parsed locally.</td>
+      <td>Terms allow personal, non-commercial use only, and the site blocks bots. The public site shows <b>demo</b> funds instead.</td></tr>
+    <tr><td>Gold (PKR per tola, 24k)</td><td>Hand-maintained CSV</td><td>Versioned in the repo.</td><td>No reliable free source found; labelled "manually updated".</td></tr>
+    <tr><td>Tax rates</td><td>Versioned YAML</td><td>Asset class, tax type, filer status, rate, effective dates, source URL, <code>verified</code> flag.</td>
+      <td>Placeholders until verified against current FBR rules. Never guessed.</td></tr>
+  </table>
+
+  <h3>Exact SBP series used</h3>
+  <table>
+    <tr><th>Our code</th><th>SBP series key</th><th>What it is</th><th class="num">Coverage</th></tr>
+    <tr><td><code>CPI_MOM</code></td><td class="mono">TS_GP_PT_CPI_M.P00461516</td><td>National CPI, month-on-month % (chained into a price index)</td><td class="num">Jul 2016 →</td></tr>
+    <tr><td><code>CPI_YOY</code></td><td class="mono">TS_GP_PT_CPI_M.P00011516</td><td>National CPI, year-on-year %</td><td class="num">Jul 2016 →</td></tr>
+    <tr><td><code>POLICY_RATE</code></td><td class="mono">TS_GP_IR_SIRPR_AH.SBPOL0030</td><td>SBP policy (target) rate, recorded on change dates</td><td class="num">2015 →</td></tr>
+    <tr><td><code>TBILL_3M/6M/12M</code></td><td class="mono">TS_GP_BAM_SIRTBIL_AH.TB0010/20/30</td><td>T-bill auction cut-off yields</td><td class="num">2015 →</td></tr>
+    <tr><td><code>KIBOR_3M/6M</code></td><td class="mono">TS_GP_BAM_SIRKIBOR_D.KIBOR0020/30</td><td>Karachi Interbank Offer Rate</td><td class="num">2015 →</td></tr>
+    <tr><td><code>DEPOSIT_RATE_*</code></td><td class="mono">TS_GP_BAM_SIRWALDR_M.WALD0030/40</td><td>Weighted-average deposit rate (fresh / outstanding)</td><td class="num">2015 →</td></tr>
+  </table>
+  <p class="small muted">Today the live database holds about 7,200 SBP observations, 2,500 daily USD/PKR rates and roughly 30,000 PSX price bars.</p>
+
+  <div class="callout warn"><b>Data honesty rules.</b> If a source is missing for a period, the API returns <code>available: false</code>
+  with a reason and never fills the gap. If a stock's history is shorter than the chosen period, the response carries a
+  <code>partial</code> flag. If a tax rule isn't verified, no after-tax number is shown.</div>
+</div>
+
+<!-- ============================================================ ARCHITECTURE -->
+<div class="flowsec">
+  <h2>5. System architecture</h2>
+  <div class="arch">
+    <div class="col">
+      <div class="box src"><b>SBP EasyData API</b>CPI, policy rate, T-bills, KIBOR, deposit rates</div>
+      <div class="box src"><b>Frankfurter v2</b>USD/PKR (SBP rates)</div>
+      <div class="box src"><b>PSX via psxdata</b>KSE-100, KMI-30, stocks</div>
+      <div class="box src"><b>Repo files</b>gold CSV, tax_rules.yaml, MUFAP export (local only)</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="col">
+      <div class="box job"><b>Ingestion (Python)</b>Providers → raw snapshot → validate → idempotent upsert → job_runs<br><span class="muted">Runs in GitHub Actions on a cron</span></div>
+      <div class="box db"><b>PostgreSQL (Neon)</b>NUMERIC money, unique (source, id, date) keys, Alembic migrations</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="col">
+      <div class="box app"><b>FastAPI on Vercel</b>/api/v1 · returns engine · cache · rate limit · CORS · OpenAPI</div>
+      <div class="box app"><b>Next.js on Vercel</b>Server-rendered pages, Recharts charts, mobile-first</div>
+      <div class="box"><b>Browser</b>Phone or desktop</div>
+    </div>
+  </div>
+
+  <h3>The pieces</h3>
+  <table>
+    <tr><th style="width:22%">Component</th><th>Responsibility</th><th style="width:24%">Runs on</th></tr>
+    <tr><td><b>ingestion/</b></td><td>One <code>Provider</code> per source: <code>fetch()</code> returns raw payloads and <code>parse()</code> returns typed records.
+      A runner stores raw bytes, validates, upserts and records a <code>job_runs</code> row. CLI: <code>python -m ingestion run|backfill|seed|list</code>.</td><td>GitHub Actions (daily cron), or locally in Docker</td></tr>
+    <tr><td><b>backend/</b></td><td>SQLAlchemy models and Alembic migrations (shared with ingestion), the returns engine,
+      the FastAPI app (<code>/api/v1</code>), middleware for cache and rate limit.</td><td>Vercel Python function (Singapore)</td></tr>
+    <tr><td><b>frontend/</b></td><td>Next.js App Router pages. Server components fetch the API; only the form and charts run in the browser.</td><td>Vercel (Singapore)</td></tr>
+    <tr><td><b>Database</b></td><td>PostgreSQL 18: instruments, prices, fund snapshots, macro series, FX, raw snapshots, job runs, tax rules.</td><td>Neon serverless Postgres (Singapore)</td></tr>
+  </table>
+
+  <h3>Key design choices</h3>
+  <ul>
+    <li><b>Read path and write path are separate.</b> Ingestion writes, and the API only reads. A failing source never affects
+      serving: the site keeps showing the last good data with its true "as of" date.</li>
+    <li><b>One schema, two programs.</b> Ingestion imports the backend's models, so there is one source of truth and one migration history.</li>
+    <li><b>Everything in one region.</b> Database, API and frontend all sit in Singapore, the closest region to Pakistan, so the
+      server-to-server hops are short.</li>
+    <li><b>Server-side rendering.</b> The frontend calls the API from the server, so pages arrive complete. That is good for phones,
+      for SEO, and for keeping CORS strict.</li>
+  </ul>
+
+  <h3>Repository layout</h3>
+<pre>backend/      FastAPI app (bachatcheck/): models, alembic/, returns/, api/v1/, middleware   + tests/
+ingestion/    providers/ (sbp, frankfurter, psx, mufap, gold, tax_rules, demo_seed), runner, writers, cli + tests/
+frontend/     Next.js App Router (src/app), components, lib (api client, formatting), Vitest tests
+data/         tax_rules.yaml, gold CSV, MUFAP inbox (git-ignored)
+infra/        Docker image for the API (alternative host)
+.github/      ci.yml (lint, types, tests, build) · ingest.yml (scheduled ingestion)
+docker-compose.yml · DEPLOY.md · README.md</pre>
+</div>
+
+<!-- ============================================================ PIPELINE -->
+<div class="flowsec">
+  <h2>6. The ingestion pipeline</h2>
+  <p>Every source goes through the same five steps:</p>
+  <div class="flow">
+    <div class="step"><b>1. Fetch</b>Polite HTTP: project User-Agent, timeouts, retries with exponential backoff on 429/5xx.</div>
+    <div class="sep">→</div>
+    <div class="step"><b>2. Store raw</b>Exact response bytes saved to <code>raw_snapshots</code> <i>before</i> parsing, with secrets stripped from the URL.</div>
+    <div class="sep">→</div>
+    <div class="step"><b>3. Parse</b>Typed records (Decimal values). Floats from libraries or Excel go through <code>repr()</code>.</div>
+    <div class="sep">→</div>
+    <div class="step"><b>4. Validate</b>No future dates, price &gt; 0, low ≤ open/close ≤ high, sane percentages. Bad rows are logged and skipped.</div>
+    <div class="sep">→</div>
+    <div class="step"><b>5. Upsert</b><code>INSERT … ON CONFLICT DO UPDATE</code> on unique keys, in 1,000-row chunks. Then a <code>job_runs</code> row.</div>
+  </div>
+  <h3>Why it is built this way</h3>
+  <ul>
+    <li><b>Raw-first storage:</b> a parser bug never loses data, because the original payload can be re-parsed later.</li>
+    <li><b>Idempotency:</b> re-running a job or a backfill updates rows instead of duplicating them. This was proven in tests
+      (a second run adds zero rows) and on real data.</li>
+    <li><b>Failure isolation:</b> one SBP series failing makes the run <i>partial</i>, not failed, and the others still load.
+      A source that is down never deletes existing data.</li>
+    <li><b>Observability:</b> each run records its status, rows upserted, rows skipped and a redacted error. The API exposes this as
+      <code>/freshness</code>, and the Methodology page shows it to users.</li>
+    <li><b>Self-healing:</b> runs left in "running" by a killed process are closed as failed after 2 hours, so freshness stays accurate.</li>
+  </ul>
+  <h3>Schedule (GitHub Actions)</h3>
+  <table>
+    <tr><th>When (PKT)</th><th>Sources</th><th>Why then</th></tr>
+    <tr><td>22:30 daily</td><td>tax rules, gold, Frankfurter, SBP</td><td>After the evening data releases</td></tr>
+    <tr><td>16:00 weekdays</td><td>PSX</td><td>After the 15:30 market close</td></tr>
+    <tr><td>On demand</td><td>any source, with optional backfill date</td><td>History loads and testing</td></tr>
+  </table>
+  <p>The workflow applies database migrations before ingesting. Secrets come from a GitHub environment, and a guard step fails
+  fast with a clear message if they are missing.</p>
+  <h3>Local development without any keys</h3>
+  <p><code>docker compose up</code> starts Postgres, the API and the web app. <code>ingestion seed</code> then loads a deterministic,
+  <b>synthetic</b> dataset from 2016 to today, and the site shows a banner while it is loaded. The seed refuses to run on a database
+  that already holds real data, and <code>--clear</code> removes it.</p>
+
+  <h2 style="margin-top:6mm">7. Database design</h2>
+  <table>
+    <tr><th style="width:22%">Table</th><th>Holds</th><th style="width:34%">Uniqueness (idempotency key)</th></tr>
+    <tr><td><code>instruments</code></td><td>Stocks, indices, mutual funds and gold, with category, Shariah flag and return basis</td><td>(kind, symbol)</td></tr>
+    <tr><td><code>price_bars</code></td><td>Daily OHLCV; gold has close only</td><td>(instrument, date, source)</td></tr>
+    <tr><td><code>fund_snapshots</code></td><td>NAV + 11 trailing returns per fund per day</td><td>(instrument, as_of_date, source)</td></tr>
+    <tr><td><code>macro_series</code> / <code>macro_observations</code></td><td>CPI, rates, yields</td><td>series code unique · (series, date, source)</td></tr>
+    <tr><td><code>fx_rates</code></td><td>USD/PKR</td><td>(base, quote, date, provider)</td></tr>
+    <tr><td><code>raw_snapshots</code></td><td>Exact source bytes + SHA-256</td><td>indexed by source and fetch time</td></tr>
+    <tr><td><code>job_runs</code></td><td>Status, row counts, redacted error per run</td><td>—</td></tr>
+    <tr><td><code>tax_rules</code></td><td>Versioned tax assumptions</td><td>(asset class, tax type, filer status, effective_from)</td></tr>
+  </table>
+  <p class="small">Money and rates are <code>NUMERIC</code> (never float). Constraint names are deterministic, so migrations are stable,
+  and CHECK constraints guard positive prices and valid statuses.</p>
+</div>
+
+<!-- ============================================================ FINANCE -->
+<div class="section">
+  <h2>8. The returns engine (the finance)</h2>
+  <p>All money math lives in one pure-Python module (<code>backend/bachatcheck/returns/</code>). It uses <code>Decimal</code> at 34
+  significant digits and is unit-tested against hand-worked values.</p>
+  <h3>Formulas</h3>
+  <table>
+    <tr><th style="width:24%">Measure</th><th>Formula</th><th style="width:36%">Notes</th></tr>
+    <tr><td>Total return</td><td><code>end ÷ start − 1</code></td><td></td></tr>
+    <tr><td>Per year (CAGR)</td><td><code>(1 + total)^(365 ÷ days) − 1</code></td><td>Actual/365, as Pakistan's money market uses</td></tr>
+    <tr><td>Real return</td><td><code>(1 + nominal) ÷ (1 + inflation) − 1</code></td><td>Exact Fisher equation. 12% nominal with 10% inflation = <b>1.82%</b>, not 2%</td></tr>
+    <tr><td>Inflation</td><td>CPI index from chained month-on-month changes</td><td>Exact over any window, unlike averaging year-on-year rates</td></tr>
+    <tr><td>After tax</td><td><code>gain × (1 − rate)</code>; losses aren't refunded</td><td>Only from <i>verified</i> rules</td></tr>
+  </table>
+  <h3>How each option is modelled</h3>
+  <table>
+    <tr><th style="width:22%">Option</th><th>Model</th></tr>
+    <tr><td>Bank savings</td><td>Profit credited <b>monthly</b> at the rate in force, then reinvested. The rate is SBP's average deposit rate or the user's own.</td></tr>
+    <tr><td>T-bills (3/6/12 months)</td><td>Bought at the latest auction cut-off yield and <b>rolled over</b> at each maturity. Simple interest within a bill, compounding across bills. The last partial period accrues pro rata. Tax is withheld on each credit.</td></tr>
+    <tr><td>KSE-100 / KMI-30, USD, gold</td><td>Buy at the price on or before the start date, value at the latest price. Index levels exclude dividends.</td></tr>
+    <tr><td>Mutual funds</td><td>The <b>median</b> of the category's trailing 1/2/3-year return. Annualized categories compound <code>(1+r)^years</code>; absolute ones are used as is.</td></tr>
+    <tr><td>Shariah mode</td><td>Drops interest-bearing savings and T-bills, uses KMI-30 instead of KSE-100, and uses Shariah fund categories.</td></tr>
+  </table>
+  <h3>Worked example: live data, Rs 100,000 over 3 years (14 Nov 2023 → 14 Nov 2026)</h3>
+  <p>Prices rose <b>25.09%</b> (7.74% a year), so you would need <b>Rs 125,086</b> today to buy what Rs 100,000 bought then.</p>
+  <table>
+    <tr><th>Option</th><th class="num">Value today</th><th class="num">Per year</th><th class="num">Real return (total)</th></tr>
+    <tr><td>KSE-100 index</td><td class="num">Rs 313,899</td><td class="num">46.4%</td><td class="num pos">+150.9%</td></tr>
+    <tr><td>T-bills, 6 months rolled</td><td class="num">Rs 155,522</td><td class="num">15.8%</td><td class="num pos">+24.3%</td></tr>
+    <tr><td>T-bills, 3 months rolled</td><td class="num">Rs 154,035</td><td class="num">15.5%</td><td class="num pos">+23.1%</td></tr>
+    <tr><td>T-bills, 12 months rolled</td><td class="num">Rs 153,672</td><td class="num">15.4%</td><td class="num pos">+22.9%</td></tr>
+    <tr><td>Bank savings (SBP average rate)</td><td class="num">Rs 123,184</td><td class="num">7.2%</td><td class="num neg">−1.5%</td></tr>
+    <tr><td>US dollars (cash)</td><td class="num">Rs 96,357</td><td class="num">−1.2%</td><td class="num neg">−23.0%</td></tr>
+  </table>
+  <p class="small muted">Fund rows are omitted because the public site uses demo fund data. The savings figure uses SBP's average
+  deposit rate, which includes zero-profit current accounts. It understates a real savings account, which is why users can enter
+  their own rate.</p>
+  <div class="callout">Reading it: over these three years, T-bills comfortably beat inflation, an average bank deposit roughly
+  broke even in real terms, holding dollars lost money as the rupee firmed, and equities did far better, with far more risk.</div>
+</div>
+
+<!-- ============================================================ API + FRONTEND -->
+<div class="flowsec">
+  <h2>9. The API</h2>
+  <p>Versioned under <code>/api/v1</code>, with OpenAPI docs at <code>/docs</code>. Decimals travel as <b>strings</b>
+  (<code>"125085.66"</code>), money rounded to 2 decimal places, returns as fractions to 6 (<code>"0.250857"</code> = 25.09%).
+  Nothing is lost to floating point on the wire.</p>
+  <table>
+    <tr><th style="width:44%">Endpoint</th><th>Purpose</th></tr>
+    <tr><td><code>GET /compare?amount&amp;years&amp;shariah&amp;filer_status&amp;savings_rate</code></td><td>Nominal, real and after-tax growth per option, chart series, inflation line, headline</td></tr>
+    <tr><td><code>GET /funds</code>, <code>/funds/categories</code>, <code>/funds/{symbol}</code></td><td>Funds explorer: filter, search, sort, NAV history</td></tr>
+    <tr><td><code>GET /stocks/search?q</code>, <code>/stocks/{symbol}?period</code></td><td>Price history and return vs KSE-100, with a partial-coverage flag</td></tr>
+    <tr><td><code>GET /macro</code>, <code>/macro/{code}</code></td><td>Economic series and their coverage</td></tr>
+    <tr><td><code>GET /freshness</code></td><td>Last successful run per source, latest data date per dataset</td></tr>
+    <tr><td><code>GET /tax-rules</code>, <code>/config</code>, <code>/health</code></td><td>Tax assumptions, data modes, liveness and database status</td></tr>
+  </table>
+  <h4>Production hardening</h4>
+  <ul>
+    <li><b>Caching:</b> an in-process TTL cache for heavy GETs (<code>X-Cache: HIT/MISS</code>, <code>Cache-Control</code>).</li>
+    <li><b>Rate limiting:</b> 60 requests a minute per IP, aware of the proxy's <code>X-Forwarded-For</code> header (<code>/health</code> is exempt).</li>
+    <li><b>CORS:</b> locked to the frontend's origin, GET only.</li>
+    <li><b>Health check:</b> never crashes. A missing or unparseable database URL reports <code>"database":"unavailable"</code> instead of a 500 error.</li>
+    <li><b>Licensing switches:</b> <code>FUNDS_DATA_MODE=demo</code> and <code>STOCKS_DATA_MODE=demo</code>.</li>
+  </ul>
+
+  <h2 style="margin-top:6mm">10. The frontend</h2>
+  <ul>
+    <li><b>Next.js App Router with server components.</b> Pages fetch on the server. Only the compare form and the charts are client components.</li>
+    <li><b>URL as state.</b> Compare inputs live in the query string, so results are shareable and survive a reload.</li>
+    <li><b>Streaming.</b> Results stream in behind a skeleton keyed on the inputs. Unknown funds or symbols return a real 404.</li>
+    <li><b>Charts done properly.</b> A validated colour palette with a fixed colour per asset (colour follows the entity, not its rank).
+      At most 4 lines, a single y-axis, hover tooltips, a legend, and the cards serve as the table view.
+      Real/nominal toggle. Mutual-fund lines are labelled as illustrative.</li>
+    <li><b>Mobile-first and accessible.</b> Thumb-size controls, no horizontal scroll at 375 px, light and dark themes, ARIA labels,
+      and state never shown by colour alone (▲/▼ plus text).</li>
+    <li><b>Honest states.</b> Loading skeletons, empty states, error states with retry, and a friendly "waking up" message if a free-tier service is cold.</li>
+    <li><b>Formatting.</b> PKR as <code>Rs 1,250,000</code>; numbers converted from decimal strings only at display time.</li>
+  </ul>
+
+  <h2 style="margin-top:6mm">11. Tech stack and why each piece</h2>
+  <table>
+    <tr><th style="width:18%">Layer</th><th style="width:30%">Choice</th><th>Why</th></tr>
+    <tr><td>Language</td><td>Python 3.11/3.12, TypeScript</td><td>Python for data and finance; TypeScript for a typed UI</td></tr>
+    <tr><td>API</td><td>FastAPI, Pydantic v2</td><td>Typed request/response models, automatic OpenAPI, fast</td></tr>
+    <tr><td>ORM / migrations</td><td>SQLAlchemy 2, Alembic</td><td>Typed models, Postgres upserts, versioned schema</td></tr>
+    <tr><td>Database</td><td>PostgreSQL (Neon)</td><td>Exact <code>NUMERIC</code>, constraints, free serverless tier</td></tr>
+    <tr><td>Ingestion</td><td>httpx + tenacity, openpyxl, PyYAML, psxdata</td><td>Retries/backoff, Excel and YAML parsing, PSX access</td></tr>
+    <tr><td>Logging</td><td>structlog (JSON in production)</td><td>Structured, searchable logs; secrets redacted</td></tr>
+    <tr><td>Frontend</td><td>Next.js 15, React 19, Tailwind CSS 4, Recharts</td><td>Server rendering, fast styling, composable charts</td></tr>
+    <tr><td>Testing</td><td>pytest, Vitest + Testing Library</td><td>Unit, integration (real Postgres) and component tests</td></tr>
+    <tr><td>Quality</td><td>ruff, mypy (strict), ESLint, tsc, actionlint</td><td>Lint and static types on every push</td></tr>
+    <tr><td>CI/CD</td><td>GitHub Actions; Vercel Git integration</td><td>Tests on every push; auto-deploy on <code>main</code></td></tr>
+    <tr><td>Local dev</td><td>Docker Compose</td><td>One command for Postgres + API + web</td></tr>
+    <tr><td>Hosting</td><td>Vercel (×2), Neon, GitHub Actions</td><td>All free, no card, same region</td></tr>
+  </table>
+</div>
+
+<!-- ============================================================ QUALITY + OPS -->
+<div class="flowsec">
+  <h2>12. Engineering quality: testing, CI, security</h2>
+  <div class="grid3">
+    <div class="card"><div class="stat">57</div><div class="small"><b>Backend tests</b>: formulas against hand-worked values; T-bill rolls, monthly accrual and tax withholding; compare-engine scenarios; every endpoint against a seeded Postgres in a rolled-back transaction; cache and rate limit with a fake clock.</div></div>
+    <div class="card"><div class="stat">53</div><div class="small"><b>Ingestion tests</b>: parsers against trimmed real SBP/Frankfurter/PSX payloads and a synthetic MUFAP workbook; validation; runner on Postgres (idempotent re-runs, raw data kept when parsing fails, partial runs, large-batch chunking, abandoned runs).</div></div>
+    <div class="card"><div class="stat">27</div><div class="small"><b>Frontend tests</b>: PKR and percent formatting, URL parsing, headline, cards, the chart's four-line cap, form validation, and API error handling (including cold starts).</div></div>
+  </div>
+  <h3>Continuous integration (every push and pull request)</h3>
+  <p>Python: ruff (lint and format), mypy in strict mode, Alembic migrations applied to a real Postgres, then pytest.
+  Frontend: ESLint, TypeScript, Vitest and a production <code>next build</code>. Workflows are linted with actionlint.</p>
+  <h3>Security and privacy</h3>
+  <ul>
+    <li><b>Secrets never in git:</b> <code>.env</code> is ignored; production secrets live in Vercel and GitHub environment secrets.</li>
+    <li><b>Redaction:</b> API keys are stripped from stored URLs, logs and job errors, and a test checks the database never contains the key.</li>
+    <li><b>No personal data:</b> no accounts, no tracking of inputs, nothing to leak.</li>
+    <li><b>Dependency security:</b> Vercel blocked a deploy on a vulnerable Next.js (CVE-2025-66478), which was upgraded to the patched 15.5.29 and React 19.1.10.</li>
+    <li><b>Abuse protection:</b> per-IP rate limiting, strict CORS, GET-only API.</li>
+  </ul>
+
+  <h2 style="margin-top:6mm">13. Deployment and operations</h2>
+  <table>
+    <tr><th style="width:22%">What</th><th>Where / how</th></tr>
+    <tr><td>Frontend</td><td>Vercel project <code>bachatcheck</code> (root <code>frontend/</code>), Singapore, production public, previews protected</td></tr>
+    <tr><td>API</td><td>Vercel project <code>bachatcheck-api</code> (root <code>backend/</code>, FastAPI on Python 3.12), Singapore</td></tr>
+    <tr><td>Database</td><td>Neon Postgres (pooled connection for the API, direct connection for migrations)</td></tr>
+    <tr><td>Data refresh</td><td>GitHub Actions <code>ingest.yml</code>, which reads secrets from the <code>BachatCheck</code> environment</td></tr>
+    <tr><td>Releases</td><td>Push to <code>main</code> → CI → both Vercel projects redeploy automatically</td></tr>
+  </table>
+  <h4>Runbook</h4>
+  <ul class="small">
+    <li><b>SBP key expires every 90 days:</b> only the SBP job fails (other sources are unaffected). Renew the key and update the secret.</li>
+    <li><b>GitHub pauses cron after 60 days without commits:</b> re-enable the workflow or push a commit.</li>
+    <li><b>Check health:</b> <code>/api/v1/health</code> and <code>/api/v1/freshness</code>, or the Methodology page.</li>
+    <li><b>Storage:</b> prune old <code>raw_snapshots</code> if the Neon free tier (1 GB) gets close.</li>
+  </ul>
+</div>
+
+<!-- ============================================================ CHALLENGES -->
+<div class="section">
+  <h2>14. Challenges and how they were solved</h2>
+  <p>These are the stories worth telling in an interview. Each one is a real problem that came up while building and deploying the project.</p>
+  <table>
+    <tr><th style="width:26%">Challenge</th><th>What happened and what was done</th></tr>
+    <tr><td><b>MUFAP data licensing</b></td><td>The fund association's site blocks bots, and its terms allow personal use only. Instead of scraping
+      around the block: a manual Excel import for local use, and clearly labelled demo funds on the public site, behind a config switch.</td></tr>
+    <tr><td><b>PSX terms of use</b></td><td>Found that PSX restricts automated retrieval and public display. Raised it with the owner with
+      alternatives. The owner chose to proceed, so it is documented, kept polite, and has a one-flag kill switch.</td></tr>
+    <tr><td><b>A dead SBP dataset</b></td><td>The detailed deposit-rate dataset had returned only blank "Missing value" rows since 2024. The
+      parser skipped them correctly; switched to the overall series that still updates, and documented its bias.</td></tr>
+    <tr><td><b>Frankfurter v1 disappeared</b></td><td>The v1 endpoints returned 404. Moved to v2 and its SBP provider.</td></tr>
+    <tr><td><b>Postgres parameter limit</b></td><td>A seed payload exceeded 65,535 bind parameters in a single INSERT. Upserts are now
+      chunked at 1,000 rows, with a regression test.</td></tr>
+    <tr><td><b>Stuck job records</b></td><td>A Docker restart killed a job mid-run, leaving it "running" forever. Runs stuck for over 2 hours
+      are now auto-closed as failed.</td></tr>
+    <tr><td><b>Windows Smart App Control</b></td><td>It blocked compiled Python wheels on the development machine. All Python ran
+      in Docker, which matches production anyway.</td></tr>
+    <tr><td><b>Hosting needed a card</b></td><td>Render's Blueprint flow required a card. Re-platformed the API to Vercel's native FastAPI
+      support: an entrypoint, demo data shipped as package data, migrations moved to CI. It was verified in a Vercel-like clean container first.</td></tr>
+    <tr><td><b>Blocked on a CVE</b></td><td>Vercel refused to deploy Next.js 15.5.4 (CVE-2025-66478). Upgraded to the patched release
+      and re-verified tests and the build.</td></tr>
+    <tr><td><b>A quoted connection string</b></td><td>The database URL was pasted into Vercel with its quotes, so every request returned 500.
+      The runtime logs showed a parse error. The app now normalises pasted values, and health never crashes.</td></tr>
+    <tr><td><b>GitHub secrets scoping</b></td><td>Secrets were saved as environment secrets, not repository secrets, so the workflow couldn't
+      see them. The guard step made it obvious, and the workflow now declares that environment.</td></tr>
+  </table>
+
+  <h2 style="margin-top:6mm">15. Known limitations and future work</h2>
+  <div class="grid2">
+    <div><h4>Limitations</h4><ul class="small">
+      <li>Backward-looking only: past returns don't predict future ones.</li>
+      <li>Tax rates are unverified placeholders, so no after-tax figures yet.</li>
+      <li>SBP's average deposit rate understates a typical savings account.</li>
+      <li>Fund comparisons rely on trailing returns (1–3 years); the public site uses demo funds.</li>
+      <li>Index levels exclude dividends. Fees, loads, Zakat and exchange spreads aren't modelled.</li>
+      <li>USD/PKR lags by a few weeks; gold is manual.</li>
+      <li>The in-process cache and rate limit are per serverless instance (approximate).</li>
+    </ul></div>
+    <div><h4>Next steps</h4><ul class="small">
+      <li>Fill in verified FBR tax rules, so after-tax results appear.</li>
+      <li>A personal portfolio tracker with <b>XIRR</b>.</li>
+      <li>A <b>Zakat calculator</b> (nisab from gold and silver prices).</li>
+      <li>A weekly email digest of rate changes and real returns.</li>
+      <li>An Urdu language toggle (RTL).</li>
+      <li>Permission from MUFAP and PSX, or licensed feeds, to show real fund and stock data publicly.</li>
+      <li>Redis for a shared cache and rate limit if traffic grows.</li>
+    </ul></div>
+  </div>
+</div>
+
+<!-- ============================================================ PORTFOLIO -->
+<div class="section">
+  <h2>16. Portfolio material</h2>
+  <h3>30-second pitch</h3>
+  <div class="callout">"BachatCheck shows Pakistani savers whether their money actually beat inflation. You enter an amount and a time
+  period, and it compares bank savings, T-bills, mutual funds, the KSE-100, dollars and gold by their real, after-inflation return,
+  using official State Bank data that updates itself every night. I built the whole thing end to end: the data pipeline, a tested
+  finance engine in exact decimal math, a FastAPI backend and a Next.js frontend, deployed on Vercel and Neon."</div>
+  <h3>Résumé bullets</h3>
+  <ul>
+    <li>Built and deployed <b>BachatCheck</b>, a full-stack fintech web app (FastAPI, PostgreSQL, Next.js) comparing Pakistani savings
+      options by inflation-adjusted return; live on Vercel with Neon Postgres.</li>
+    <li>Designed an idempotent ingestion pipeline across 6 sources (SBP API, FX API, PSX, Excel, CSV, YAML) with raw-first storage,
+      row-level validation and run tracking, scheduled via GitHub Actions; about 40,000 rows of history since 2015.</li>
+    <li>Implemented a Decimal-precision returns engine (CAGR, exact Fisher real return, rolled T-bill and monthly-accrual models,
+      tax withholding), unit-tested against hand-worked values.</li>
+    <li>Shipped a versioned REST API with caching, per-IP rate limiting, strict CORS and OpenAPI, plus a mobile-first,
+      server-rendered UI with accessible charts.</li>
+    <li>Maintained 137 automated tests with strict typing (mypy, tsc) and CI on every push; researched data licensing
+      and built demo-data modes to respect source terms.</li>
+  </ul>
+  <h3>Skills demonstrated</h3>
+  <p>
+    <span class="tag">Python</span><span class="tag">FastAPI</span><span class="tag">SQLAlchemy 2</span><span class="tag">Alembic</span>
+    <span class="tag">PostgreSQL</span><span class="tag">Data pipelines / ETL</span><span class="tag">Financial math</span>
+    <span class="tag">TypeScript</span><span class="tag">Next.js / React</span><span class="tag">Tailwind</span><span class="tag">Data visualisation</span>
+    <span class="tag">REST API design</span><span class="tag">Testing (pytest, Vitest)</span><span class="tag">CI/CD (GitHub Actions)</span>
+    <span class="tag">Docker</span><span class="tag">Vercel</span><span class="tag">Neon</span><span class="tag">Security &amp; secrets</span>
+    <span class="tag">Accessibility</span><span class="tag">Data licensing</span>
+  </p>
+  <h3>Demo script (3 minutes)</h3>
+  <ol class="small">
+    <li>Open the site and point at the headline: "Rs 100,000 three years ago needs Rs 125,086 today."</li>
+    <li>Toggle <i>After inflation / Rupees</i> on the chart: savings sits on the inflation line, T-bills sit above it.</li>
+    <li>Switch to 10 years, then tick Shariah-only: T-bills drop out, with the reason shown, and KSE-100 becomes KMI-30.</li>
+    <li>Enter your own bank rate under "Know your bank's savings rate?" and watch the savings card update.</li>
+    <li>Open Methodology: formulas, tax assumptions marked unverified, and per-source "last updated" dates.</li>
+    <li>Open <code>/docs</code> on the API and run <code>/compare</code> live.</li>
+    <li>Show the GitHub Actions run history: the nightly ingestion and CI.</li>
+  </ol>
+</div>
+
+<!-- ============================================================ Q&A -->
+<div class="section">
+  <h2>17. Interview Q&amp;A</h2>
+  <h3>Product and problem</h3>
+  <div class="qa"><div class="q">What problem does BachatCheck solve, in one sentence?</div>
+    <div class="a">It tells a Pakistani saver whether each savings option actually grew their purchasing power, comparing everything
+    on one footing: real return after inflation, and after tax when the rules are verified.</div></div>
+  <div class="qa"><div class="q">Why focus on real return instead of the usual interest rate?</div>
+    <div class="a">With inflation in double digits, a 10% savings rate can mean losing money. Real return is the honest measure of
+    whether your money can buy more or less than before.</div></div>
+  <div class="qa"><div class="q">Who is the user, and how did that shape the design?</div>
+    <div class="a">An everyday saver on a phone. Hence mobile-first layouts, a plain-language headline, at most four chart lines,
+    cards rather than wide tables, and no sign-up.</div></div>
+
+  <h3>Data</h3>
+  <div class="qa"><div class="q">Where does the data come from, and how fresh is it?</div>
+    <div class="a">SBP EasyData for CPI and interest rates, Frankfurter (SBP rates) for USD/PKR, PSX prices via psxdata, MUFAP fund
+    exports, and a manual gold CSV. Jobs run nightly, and PSX runs on weekdays after the close. Every page shows its "as of" date,
+    and /freshness reports each source's last success.</div></div>
+  <div class="qa"><div class="q">How did you handle sources whose terms restrict reuse?</div>
+    <div class="a">I read the terms before writing code. MUFAP allows personal use only and blocks bots, so the public site shows
+    labelled demo funds and real exports stay local. For PSX I flagged the restriction and the owner decided; it's documented and
+    can be switched off with one setting. I didn't work around any bot protection.</div></div>
+  <div class="qa"><div class="q">What happens when a source is down or returns bad data?</div>
+    <div class="a">The raw response is saved first, so nothing is lost. Bad rows are logged and skipped. One failing series makes a
+    run "partial", not failed. Existing data is never deleted, so the site keeps serving the last good values with their real dates.</div></div>
+  <div class="qa"><div class="q">Why store raw snapshots at all?</div>
+    <div class="a">Parsers have bugs and sources change format. With the exact bytes stored, I can fix a parser and re-parse history
+    without re-fetching, and I can audit exactly what a source said on a given day.</div></div>
+
+  <h3>Finance</h3>
+  <div class="qa"><div class="q">Why not just subtract inflation from the return?</div>
+    <div class="a">That's an approximation that drifts at high rates. The exact Fisher form is (1+n)/(1+i)−1. At 12% and 10% the exact
+    answer is 1.82%, not 2%, and the gap grows with inflation, which matters in Pakistan.</div></div>
+  <div class="qa"><div class="q">How do you measure inflation over an arbitrary period?</div>
+    <div class="a">I chain SBP's month-on-month CPI changes into a price index, then divide the index values at the two ends. That's
+    exact for any window, whereas averaging year-on-year rates isn't.</div></div>
+  <div class="qa"><div class="q">How are T-bills modelled?</div>
+    <div class="a">Buy at the latest auction cut-off yield, earn simple interest on actual/365 until maturity, then roll into a new bill
+    at the then-current yield. Tax is withheld on each credit, and the final partial period accrues pro rata.</div></div>
+  <div class="qa"><div class="q">Why are fund comparisons limited to 3 years?</div>
+    <div class="a">MUFAP publishes trailing returns up to 3 years but no historical NAV series. I use the category median for the
+    matching horizon and show "not available" beyond it, rather than inventing a path.</div></div>
+  <div class="qa"><div class="q">How do you handle tax without getting it wrong?</div>
+    <div class="a">Tax rates are versioned data with a source URL and a "verified" flag, never code. Unverified rules mean no after-tax
+    number, and the UI says why. Better no number than a confidently wrong one.</div></div>
+
+  <h3>Backend and data engineering</h3>
+  <div class="qa"><div class="q">Why Decimal and NUMERIC instead of floats?</div>
+    <div class="a">Binary floats can't represent values like 0.1 exactly, and money errors compound. All math runs in Decimal at 34
+    digits, storage is NUMERIC, and the API sends decimals as strings. The frontend converts to numbers only for display.</div></div>
+  <div class="qa"><div class="q">How is ingestion idempotent?</div>
+    <div class="a">Every table has a unique key on source + identifier + date, and writes use INSERT … ON CONFLICT DO UPDATE. A re-run
+    updates rows instead of duplicating them; a test asserts that a second run adds zero rows.</div></div>
+  <div class="qa"><div class="q">What was the trickiest production bug?</div>
+    <div class="a">Two good ones. A single seed payload exceeded Postgres's 65,535 bind-parameter limit, which I fixed by chunking
+    upserts. And after deploy, every request returned 500 because the database URL was pasted with quotes; I found it in the runtime
+    logs, made config tolerate pasted values, and made the health check report misconfiguration instead of crashing.</div></div>
+  <div class="qa"><div class="q">How do you keep the API responsive and safe on a free tier?</div>
+    <div class="a">An in-process TTL cache for heavy reads, per-IP rate limiting that trusts the proxy's forwarded IP, strict CORS
+    and GET-only routes. Server-side rendering also means browsers rarely call the API directly.</div></div>
+  <div class="qa"><div class="q">Why separate the ingestion and API processes?</div>
+    <div class="a">Different lifecycles and failure modes. Ingestion is a scheduled batch that can be slow and can fail; the API must
+    be fast and always up. They share models and migrations but never block each other.</div></div>
+
+  <h3>Frontend</h3>
+  <div class="qa"><div class="q">Why server components and URL state?</div>
+    <div class="a">Pages arrive fully rendered, which is fast on phones, and the URL fully describes a result, so it can be shared and
+    bookmarked. Only the form and the charts need client-side JavaScript.</div></div>
+  <div class="qa"><div class="q">How did you make the charts readable and accessible?</div>
+    <div class="a">A validated colour-blind-safe palette with a fixed colour per asset, at most four lines, one axis, a neutral dashed
+    inflation line, tooltips, a legend, and a card view of the same data. State is shown with ▲/▼ and text, never colour alone.</div></div>
+
+  <h3>DevOps, testing and trade-offs</h3>
+  <div class="qa"><div class="q">How is it deployed, and why there?</div>
+    <div class="a">Two Vercel projects (FastAPI and Next.js), Neon Postgres and GitHub Actions for ingestion, all in Singapore and all
+    free with no card. Render's free flow wanted a card, so I moved the API to Vercel's native FastAPI runtime and ran migrations in CI.</div></div>
+  <div class="qa"><div class="q">What do the tests cover, and what don't they?</div>
+    <div class="a">137 tests: finance formulas against hand-worked numbers, parsers against real trimmed payloads, the runner and API
+    against a real Postgres, and UI components. Live third-party APIs are deliberately not called in tests, so CI is deterministic;
+    those are checked by the scheduled runs and the freshness monitoring.</div></div>
+  <div class="qa"><div class="q">What would you do differently with more time or traffic?</div>
+    <div class="a">Move the cache and rate limit to Redis, add end-to-end browser tests, add alerting on failed ingestion runs,
+    verify tax rules with a tax professional, and pursue licensed MUFAP/PSX data so real figures can be shown publicly.</div></div>
+  <div class="qa"><div class="q">Is this investment advice?</div>
+    <div class="a">No. It's an educational tool that looks backward at historical data, with clear disclaimers on every page and the
+    methodology fully disclosed.</div></div>
+</div>
+
+<!-- ============================================================ GLOSSARY -->
+<div class="section">
+  <h2>18. Glossary</h2>
+  <table>
+    <tr><th style="width:24%">Term</th><th>Meaning</th></tr>
+    <tr><td><b>Real return</b></td><td>Return after inflation: how much more (or less) your money can buy.</td></tr>
+    <tr><td><b>Nominal return</b></td><td>Return in rupees, before adjusting for inflation.</td></tr>
+    <tr><td><b>CAGR</b></td><td>Compound annual growth rate: the steady yearly rate that gives the same total result.</td></tr>
+    <tr><td><b>Fisher equation</b></td><td>(1 + nominal) ÷ (1 + inflation) − 1, the exact link between nominal and real return.</td></tr>
+    <tr><td><b>CPI</b></td><td>Consumer Price Index, the official measure of consumer prices (Pakistan Bureau of Statistics, via SBP).</td></tr>
+    <tr><td><b>SBP / policy rate</b></td><td>State Bank of Pakistan, and the benchmark interest rate it sets.</td></tr>
+    <tr><td><b>T-bill / cut-off yield</b></td><td>Short-term government debt (3, 6 or 12 months), and the yield set at each auction.</td></tr>
+    <tr><td><b>KIBOR</b></td><td>Karachi Interbank Offered Rate, the benchmark lending rate between banks.</td></tr>
+    <tr><td><b>KSE-100 / KMI-30</b></td><td>PSX's main stock index, and its Shariah-compliant index.</td></tr>
+    <tr><td><b>NAV</b></td><td>Net asset value per unit of a mutual fund.</td></tr>
+    <tr><td><b>MUFAP</b></td><td>Mutual Funds Association of Pakistan, which publishes daily fund statistics.</td></tr>
+    <tr><td><b>Tola</b></td><td>The traditional unit for gold in Pakistan (11.664 g).</td></tr>
+    <tr><td><b>Filer / non-filer</b></td><td>Whether a taxpayer is on FBR's Active Taxpayer List. Non-filers often pay higher withholding rates.</td></tr>
+    <tr><td><b>Idempotent</b></td><td>Safe to run repeatedly: the second run changes nothing.</td></tr>
+    <tr><td><b>Upsert</b></td><td>Insert a row, or update it if it already exists.</td></tr>
+  </table>
+  <div style="height:8mm"></div>
+  <p class="small muted">BachatCheck is an educational project. It is not investment, tax or financial advice. Data may be delayed,
+  incomplete or inaccurate. Sources: State Bank of Pakistan (EasyData), Frankfurter (SBP rates), Pakistan Stock Exchange via psxdata,
+  MUFAP (local only). Figures in this document were taken from the live API on 14 November 2026.</p>
+</div>
+
+</body>
+</html>
