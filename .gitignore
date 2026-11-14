@@ -34,3 +34,4 @@ Thumbs.db
 
 # MUFAP exports are personal-use only (MUFAP Terms of Use) — never commit them
 data/mufap_inbox/
+.neon

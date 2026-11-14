@@ -38,7 +38,7 @@ export async function apiGet<T>(path: string, query: Query = {}, revalidate = 30
   try {
     res = await fetch(`${apiBaseUrl()}/api/v1${path}${qs ? `?${qs}` : ""}`, {
       next: { revalidate },
-      // Generous: the free-tier API host sleeps when idle and takes ~1 minute to wake.
+      // Generous: on free tiers the database scales to zero and functions start cold.
       signal: AbortSignal.timeout(50_000),
     });
   } catch {

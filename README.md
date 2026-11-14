@@ -225,9 +225,9 @@ frontend.
 | `ingestion/` | `python -m ingestion`: providers, runner, writers, CLI; fixture-based tests |
 | `frontend/` | Next.js App Router + TypeScript + Tailwind + Recharts |
 | `data/` | Tax rules, gold CSV, demo funds, MUFAP inbox (git-ignored). See [`data/README.md`](data/README.md) |
-| `infra/` | Production API image |
+| `infra/` | Self-contained Docker image for the API (alternative to Vercel) |
 | `docker-compose.yml` | Local Postgres + API + web (+ `ingestion` tool service) |
-| `render.yaml`, `DEPLOY.md` | Deployment (Neon + Render + Vercel + GitHub Actions) |
+| `backend/index.py`, `*/vercel.json`, `DEPLOY.md` | Deployment (Neon + Vercel + GitHub Actions) |
 
 ## Known limitations
 
@@ -242,13 +242,13 @@ frontend.
 - USD/PKR (SBP via Frankfurter) is published monthly, so the latest weeks can lag.
 - Gold prices are entered by hand.
 - PSX data comes from an unofficial scraper whose use PSX's terms restrict (see above).
-- On the free hosting tier the API sleeps when idle, so the first visit after a quiet spell
-  takes about a minute (the UI says so).
+- On the free tiers the database scales to zero and functions start cold, so the first visit
+  after a quiet spell can be slow (the UI explains it if it takes too long).
 
 ## Deployment
 
-Neon (Postgres) + Render (API, Docker) + Vercel (frontend) + GitHub Actions (daily ingestion),
-all on free tiers. Step by step: [DEPLOY.md](DEPLOY.md).
+Neon (Postgres) + Vercel (two projects: the FastAPI API and the Next.js frontend) + GitHub
+Actions (migrations and daily ingestion), all on free tiers with no card. Step by step: [DEPLOY.md](DEPLOY.md).
 
 ## Running without Docker
 

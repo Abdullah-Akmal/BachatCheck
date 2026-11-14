@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     "Compare Pakistani savings options — bank savings, T-bills, mutual funds, KSE-100, USD and gold — by real return after inflation and tax.",
 };
 
-// Let server rendering wait out the API host's ~1 minute cold start (Vercel function limit).
+// Let server rendering wait out a cold API/database on free tiers (Vercel function limit).
 export const maxDuration = 60;
 
 export const viewport: Viewport = {
