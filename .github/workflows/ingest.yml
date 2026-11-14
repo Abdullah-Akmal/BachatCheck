@@ -1,7 +1,9 @@
 name: Ingest data
 
 # Daily data refresh against the production database (Neon).
-# Secrets (Settings -> Secrets and variables -> Actions): DATABASE_URL, SBP_EASYDATA_API_KEY.
+# Secrets live in the GitHub environment named "DATABASE_URL" (Settings -> Environments):
+#   DATABASE_URL_UNPOOLED (preferred: migrations need the direct connection) or DATABASE_URL,
+#   and SBP_EASYDATA_API_KEY. Repository-level secrets with the same names also work.
 # MUFAP isn't here on purpose: its terms allow personal use only, so production shows demo funds.
 on:
   schedule:
@@ -29,8 +31,10 @@ jobs:
   ingest:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # Gives the job that environment's secrets (in addition to repository secrets).
+    environment: DATABASE_URL
     env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL_UNPOOLED || secrets.DATABASE_URL }}
       SBP_EASYDATA_API_KEY: ${{ secrets.SBP_EASYDATA_API_KEY }}
       LOG_JSON: "true"
     steps:
