@@ -228,6 +228,7 @@ frontend.
 | `infra/` | Self-contained Docker image for the API (alternative to Vercel) |
 | `docker-compose.yml` | Local Postgres + API + web (+ `ingestion` tool service) |
 | `backend/index.py`, `*/vercel.json`, `DEPLOY.md` | Deployment (Neon + Vercel + GitHub Actions) |
+| `AGENTS.md`, `CLAUDE.md` | Contributor/agent guide: rules, conventions, commands, gotchas, decision log |
 
 ## Known limitations
 
